@@ -18,10 +18,7 @@ arima.model2<-auto.arima(train_test_data$train,lambda = "auto")
 
 mlp.model<-mlp(as.ts(train_test_data$train),hd=c(5,7,8,3))
 
-length(mlp.model$fitted)
-length(train_data)
-
-result<-ts.intersect(train_data,mlp.model$fitted,arima.model2$fitted)
+result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model2$fitted)
 colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
 
 mape(result[,1],(0.5*result[,2]+0.5*result[,3]))
