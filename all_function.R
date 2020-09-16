@@ -17,3 +17,24 @@ read_data<-function(kota,pecahan){
                            data1=Dataset_Surabaya[pecahan]
   )
 }
+
+init_run<-function(){
+  library(xts)
+  library(forecast)
+  library(nnfor)
+  library(TSrepr)
+  library(TSstudio)
+  
+  set.seed(72)
+}
+
+####################grid search################
+#testFun <- function(x) {
+#  mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),xreg = cbind(EIDULFITR),reps = 1,lags = x[3])
+#  mlp.model$MSE
+#}
+#res <- gridSearch(fun=testFun, levels = list(1:10,1:10,1:24))
+#res$minfun
+#res$minlevels
+
+###############################################
