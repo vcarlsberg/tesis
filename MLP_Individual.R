@@ -35,7 +35,7 @@ EIDULFITR<-c(
 )
 
 
-mlp.model<-mlp(train_test_data$train,hd=c(10,8),xreg = cbind(EIDULFITR),reps = 1,lags = 1:60)
+mlp.model<-mlp(train_test_data$train,hd=c(10,8),xreg = cbind(EIDULFITR),reps = 1,lags = 1:36)
 
 result<-ts.intersect(train_test_data$train,mlp.model$fitted)
 colnames(result)<-c("train_data","mlp_fitted")

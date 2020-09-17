@@ -4,7 +4,7 @@ library(nnfor)
 library(TSrepr)
 library(TSstudio)
 
-flow_data<-read_data("Jakarta","K50000")
+flow_data<-read_data("Jakarta","K100000")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 

@@ -16,6 +16,13 @@ read_data<-function(kota,pecahan){
                            bulan=Dataset_Surabaya[["Bulan"]],
                            data1=Dataset_Surabaya[pecahan]
   )
+  
+  index<-data_outflow[pecahan]==0
+  data_outflow[pecahan][index]<-NA
+  data_outflow<-na.omit(na.approx(data_outflow))
+  data_outflow<-as.data.frame(data_outflow)
+  
+  
 }
 
 init_run<-function(){
@@ -24,6 +31,7 @@ init_run<-function(){
   library(nnfor)
   library(TSrepr)
   library(TSstudio)
+  library(tidyverse)
   
   set.seed(72)
 }
