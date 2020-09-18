@@ -3,6 +3,26 @@ my_function<- function(x){
   
 }
 
+add_eidulfitr_regressor<-function(data){
+  
+  holidays<-prophet::generated_holidays
+  
+  holidays<-holidays %>% filter(country=="ID" & holiday=="Eid al-Fitr")
+  holidays$bulan<-as.integer(format(as.Date(holidays$ds), "%m"))
+  holidays$tahun<-as.integer(format(as.Date(holidays$ds), "%Y"))
+  
+  add_1994<-data.frame("1994-03-14","Eid al-Fitr","ID",1994,3,1994)
+  names(add_1994)<-c("ds","holiday","country","year","bulan","tahun")
+  holidays<-rbind(holidays, add_1994)
+  
+  data<-data %>% left_join(holidays,copy = TRUE) 
+  data<-data %>% select(tahun:ds)
+  data<-data %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
+  #colnames(data)[colnames(data) == 'ds'] <- 'eid'
+  #data<-as_tibble(data) %>% rename(ds=eid)
+  #%>%  %>% 
+}
+
 read_data<-function(kota,pecahan){
   library(gsheet)
   library(tidyverse)
@@ -22,6 +42,10 @@ read_data<-function(kota,pecahan){
   data_outflow<-na.omit(na.approx(data_outflow))
   data_outflow<-as.data.frame(data_outflow)
   
+  #holidays<-eidulfitr_regressor(country = "ID",holiday = "Eid al-Fitr")
+  #data_outflow<-left_join(data_outflow,holidays,copy=TRUE)
+  #data_outflow<-data_outflow %>% select(tahun:ds)
+  #data_outflow<-data_outflow %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
   
 }
 

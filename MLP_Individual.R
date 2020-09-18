@@ -1,10 +1,11 @@
 init_run()
+set.seed(72)
 
 flow_data<-read_data("Jakarta","K50000")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-train_test_data<-ts_split(flow_data_xts,sample.out=6)
+train_test_data<-ts_split(flow_data_xts)
 
 EIDULFITR<-c(
   0,0,0,0,0,0,0,0, #1994
@@ -35,7 +36,8 @@ EIDULFITR<-c(
 )
 
 
-mlp.model<-mlp(train_test_data$train,hd=c(10,8),xreg = cbind(EIDULFITR),reps = 1,lags = 1:36)
+mlp.model<-mlp(train_test_data$train,hd=c(10,8,5),
+               xreg = cbind(EIDULFITR),reps = 1,lags = 1:60)
 
 result<-ts.intersect(train_test_data$train,mlp.model$fitted)
 colnames(result)<-c("train_data","mlp_fitted")
