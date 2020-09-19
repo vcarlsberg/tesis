@@ -41,6 +41,8 @@ read_data<-function(kota,pecahan){
   data_outflow[pecahan][index]<-NA
   data_outflow<-na.omit(na.approx(data_outflow))
   data_outflow<-as.data.frame(data_outflow)
+  data_outflow<-add_eidulfitr_regressor(data_outflow)
+  
   
   #holidays<-eidulfitr_regressor(country = "ID",holiday = "Eid al-Fitr")
   #data_outflow<-left_join(data_outflow,holidays,copy=TRUE)
