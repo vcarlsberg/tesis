@@ -62,6 +62,15 @@ init_run<-function(){
   set.seed(72)
 }
 
+split_data<-function(data,precentage_test){
+  library(TSstudio)
+  length_data<-dim(flow_data_xts)[1]
+  n_test<-round(length_data*(precentage_test/100))
+  n_train<-length_data-n_test
+  split<-ts_split(data,sample.out = n_test)
+  return(split)
+}
+
 ####################grid search################
 #testFun <- function(x) {
 #  mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),xreg = cbind(EIDULFITR),reps = 1,lags = x[3])
