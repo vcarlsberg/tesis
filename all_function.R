@@ -59,6 +59,12 @@ init_run<-function(){
   library(TSstudio)
   library(tidyverse)
   
+  library(SmartEDA)
+  library(dlookr)
+  
+  library(tseries)
+  library(urca)
+  
   set.seed(72)
 }
 
