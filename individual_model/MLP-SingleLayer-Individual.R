@@ -1,4 +1,4 @@
-source("all_function.R")
+source("~/tesis/all_function.R")
 init_run()
 set.seed(72)
 
@@ -8,22 +8,39 @@ if(!exists("compile")){
                         Location=character(),
                         Denomination=character(),
                         fh=numeric(), 
-                        MAPE=numeric())
+                        MAPE=numeric(),
+                        RMSE=numeric(),
+                        linearmodel=character(),
+                        nonlinearmodel=character(),
+                        preprocessing=character())
   
 }
 
 
-for(location in c("Jakarta","Surabaya","Bandung"))
+for(location in c("Jakarta"))
 {
-  for(denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+  for(denomination in c("K100000"))
   {
     flow_data<-read_data(location,denomination)
     flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                         frequency=12)
     
-    train_test_data<-ts_split(flow_data_xts)
+    train_test_data<-split_data(flow_data_xts,20)
     
-    mlp.model<-mlp(train_test_data$train,hd=c(10,8,5),
+    testFun <- function(x)
+    {
+      mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
+                     reps = 1,
+                     lags = 1:60)
+      mlp.model$MSE
+    }
+    
+    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    sol$values
+    head(sol$levels)
+    
+    
+    mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                    reps = 1,
                    lags = 1:60)
     
@@ -33,12 +50,17 @@ for(location in c("Jakarta","Surabaya","Bandung"))
     print(paste0("in-sample MAPE : ",location," ",denomination," ",
                  mape(result[,1],result[,2])))
     
-    compile<-rbind(compile,data.frame(Model="MLP",
+    compile<-rbind(compile,data.frame(Model="MLP-SingleLayer-Individual",
                             InOutSample="In Sample",
                             Location=location,
                             Denomination=denomination,
                             fh=0,
-                            MAPE=mape(result[,1],result[,2])))
+                            MAPE=mape(result[,1],result[,2]),
+                            RMSE=rmse(result[,1],result[,2]),
+                            linearmodel="",
+                            nonlinearmodel=(sol$minlevels),
+                            preprocessing=""
+                            ))
     
     for (fh in 1:24) {
       frc.mlp<-forecast(mlp.model,h=fh)
@@ -48,12 +70,17 @@ for(location in c("Jakarta","Surabaya","Bandung"))
       print(paste0("out-sample MAPE : ",location," ",denomination," ",fh," ",
                    mape(result.pred[,1],result.pred[,2])))
       
-      compile<-rbind(compile,data.frame(Model="MLP",
+      compile<-rbind(compile,data.frame(Model="MLP-SingleLayer-Individual",
                               InOutSample="Out Sample",
                               Location=location,
                               Denomination=denomination,
                               fh=fh,
-                              MAPE=mape(result.pred[,1],result.pred[,2])))
+                              MAPE=mape(result.pred[,1],result.pred[,2]),
+                              RMSE=rmse(result.pred[,1],result.pred[,2]),
+                              linearmodel="",
+                              nonlinearmodel=(sol$minlevels),
+                              preprocessing=""
+                              ))
     }
 
   }

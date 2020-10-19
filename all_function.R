@@ -4,19 +4,21 @@ my_function<- function(x){
 }
 
 add_eidulfitr_regressor<-function(data){
-  
+  library(prophet)
   holidays<-prophet::generated_holidays
   
   holidays<-holidays %>% filter(country=="ID" & holiday=="Eid al-Fitr")
   holidays$bulan<-as.integer(format(as.Date(holidays$ds), "%m"))
   holidays$tahun<-as.integer(format(as.Date(holidays$ds), "%Y"))
+  holidays<-holidays %>% select(-year)
+  names(holidays)<-c("ds","holiday","country","Bulan","Tahun")
   
-  add_1994<-data.frame("1994-03-14","Eid al-Fitr","ID",1994,3,1994)
-  names(add_1994)<-c("ds","holiday","country","year","bulan","tahun")
+  add_1994<-data.frame("1994-03-14","Eid al-Fitr","ID",3,1994)
+  names(add_1994)<-c("ds","holiday","country","Bulan","Tahun")
   holidays<-rbind(holidays, add_1994)
   
   data<-data %>% left_join(holidays,copy = TRUE) 
-  data<-data %>% select(tahun:ds)
+  data<-data %>% select(-c(holiday, country))
   data<-data %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
   #colnames(data)[colnames(data) == 'ds'] <- 'eid'
   #data<-as_tibble(data) %>% rename(ds=eid)
@@ -26,23 +28,22 @@ add_eidulfitr_regressor<-function(data){
 read_data<-function(kota,pecahan){
   library(gsheet)
   library(tidyverse)
-  url<-"https://docs.google.com/spreadsheets/d/1pYpYd04zw6iUz32mGkGNz_1_-jorwM-QWGxXSKiOzpo/edit?usp=sharing"
-  a <- gsheet2text(url, format='csv')
-  b <- read.csv(text=a, stringsAsFactors=FALSE)
-  c<-b %>% filter(Kota == kota)
+  url<-"https://drive.google.com/file/d/1WES1QCc0OHqZt9kiFkwRp2qx2RGxOA97/view?usp=sharing"
+  dataset<-gsheet2tbl(url) %>% filter(Kota == kota) %>% select(Kota,Tahun,Bulan,pecahan)
   
-  Dataset_Surabaya <- c
-  data_outflow<-data.frame(tahun=Dataset_Surabaya[["Tahun"]],
-                           bulan=Dataset_Surabaya[["Bulan"]],
-                           data1=Dataset_Surabaya[pecahan]
-  )
+  index<-dataset[,4]<=0.0000
+  dataset[,4][index]<-NA
+  dataset<-dataset %>% na.trim()
+  dataset[,4]<-na.approx(dataset[,4])
+  dataset<-as.data.frame(dataset)
+  dataset<-add_eidulfitr_regressor(dataset)
+  dataset<-dataset %>% select(-Kota)
   
-  index<-data_outflow[pecahan]==0
-  data_outflow[pecahan][index]<-NA
-  data_outflow<-na.omit(na.approx(data_outflow))
-  data_outflow<-as.data.frame(data_outflow)
-  data_outflow<-add_eidulfitr_regressor(data_outflow)
-  
+  #dataset[,1]<-as.factor(dataset[,1])
+  #dataset[,2]<-as.factor(dataset[,2])
+  #dataset[,3]<-as.factor(dataset[,3])
+  #dataset[,4]<-as.numeric(dataset[,4])
+  #dataset[,5]<-as.integer(dataset[,5])
   
   #holidays<-eidulfitr_regressor(country = "ID",holiday = "Eid al-Fitr")
   #data_outflow<-left_join(data_outflow,holidays,copy=TRUE)
@@ -65,14 +66,16 @@ init_run<-function(){
   library(tseries)
   library(urca)
   
+  library(RSNNS)
+  library(NMOF)
+  
   set.seed(72)
 }
 
 split_data<-function(data,precentage_test){
   library(TSstudio)
-  length_data<-dim(flow_data_xts)[1]
+  length_data<-length(index(flow_data_xts))
   n_test<-round(length_data*(precentage_test/100))
-  n_train<-length_data-n_test
   split<-ts_split(data,sample.out = n_test)
   return(split)
 }
