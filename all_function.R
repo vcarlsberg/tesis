@@ -69,12 +69,18 @@ init_run<-function(){
   library(RSNNS)
   library(NMOF)
   
+  library(ids)
+  
+  library(Metrics)
+  
+  library(GA)
+  
   set.seed(72)
 }
 
 split_data<-function(data,precentage_test){
   library(TSstudio)
-  length_data<-length(index(flow_data_xts))
+  length_data<-length(index(data))
   n_test<-round(length_data*(precentage_test/100))
   split<-ts_split(data,sample.out = n_test)
   return(split)

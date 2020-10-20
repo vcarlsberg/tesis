@@ -3,7 +3,9 @@ init_run()
 set.seed(72)
 
 if(!exists("compile")){
-  compile <- data.frame(Model=character(),
+  compile <- data.frame(ID=character(),
+                        DateExecuted=character(),
+                        Model=character(),
                         InOutSample=character(),
                         Location=character(),
                         Denomination=character(),
@@ -16,6 +18,8 @@ if(!exists("compile")){
   
 }
 
+id<-random_id()
+dateexecuted<-Sys.time()
 
 for(location in c("Jakarta"))
 {
@@ -66,8 +70,10 @@ for(location in c("Jakarta"))
                             MAPE=mape(result[,1],result[,3]),
                             RMSE=rmse(result[,1],result[,2]),
                             linearmodel="",
-                            nonlinearmodel=(sol$minlevels),
-                            preprocessing=paste("Box-Cox",lambda)
+                            nonlinearmodel=paste(sol$minlevels[1]),
+                            preprocessing=paste("Box-Cox",lambda),
+                            ID=id,
+                            DateExecuted=dateexecuted
                             ))
     
      for (fh in 1:24){
@@ -88,8 +94,10 @@ for(location in c("Jakarta"))
                                MAPE=mape(result.pred[,1],result.pred[,2]),
                                RMSE=rmse(result.pred[,1],result.pred[,2]),
                                linearmodel="",
-                               nonlinearmodel=(sol$minlevels),
-                               preprocessing=paste("Box-Cox",lambda)
+                               nonlinearmodel=paste(sol$minlevels[1]),
+                               preprocessing=paste("Box-Cox",lambda),
+                               ID=id,
+                               DateExecuted=dateexecuted
                                ))
      }
 
