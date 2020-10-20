@@ -1,13 +1,13 @@
-preprocessing=FALSE
+preprocessing=TRUE
 weighting="lm"
 MLP_layer=1
 location="Jakarta"
 denomination="K100000"
 
-#ARIMAX_MLPX_Series(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
+#MLP_ARIMA_Series(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
 #                   location=location,denomination=denomination)
 
-#ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
+#MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
 #{
   source("~/tesis/all_function.R")
   init_run()
@@ -50,20 +50,16 @@ denomination="K100000"
   
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
-
-  arima.model<-auto.arima(train_test_data$train,xreg = xreg_data$train)
-  residual<-train_test_data$train-arima.model$fitted
   
   if(MLP_layer==1)
   {
     testFun <- function(x)
     {
-      mlp.model<-mlp(residual,hd=c(x[1]),
+      mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
                      reps = 1,
                      lags = 1:60,
                      xreg =as.data.frame(xreg_data$train),
-                     xreg.lags=list(0),xreg.keep=list(TRUE)
-                     )
+                     xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
@@ -71,7 +67,7 @@ denomination="K100000"
   }else if(MLP_layer==2){
     testFun <- function(x)
     {
-      mlp.model<-mlp(residual,hd=c(x[1],x[2]),
+      mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
                      reps = 1,
                      lags = 1:60,
                      xreg =as.data.frame(xreg_data$train),
@@ -81,11 +77,17 @@ denomination="K100000"
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
   }
   
-  mlp.model<-mlp(residual,hd=c(sol$minlevels),
+  mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
                  lags = 1:60,
                  xreg =as.data.frame(xreg_data$train),
                  xreg.lags=list(0),xreg.keep=list(TRUE))
+  
+  
+  residual<-train_test_data$train-mlp.model$fitted
+  
+  residual<-ts.intersect(residual,xreg_data$train)
+  arima.model<-auto.arima(residual[,1],xreg = residual[,2])
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
@@ -98,14 +100,14 @@ denomination="K100000"
     result<-ts.intersect(result[,1],result[,2]+result[,3])
     colnames(result)<-c("train_data","fitted")
   }
-
   
+
   linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
   
-  compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
+  compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -122,8 +124,7 @@ denomination="K100000"
   
   
   for (fh in 1:24) {
-    frc.mlp<-forecast(mlp.model,h=fh,
-                      xreg = as.data.frame(xreg_xts))
+    frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
     frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
     
     if(preprocessing==TRUE){
@@ -132,9 +133,8 @@ denomination="K100000"
       result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean)  
     }
     
-    colnames(result.pred)<-c("train_data","forecast")
     
-    compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
+    compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
