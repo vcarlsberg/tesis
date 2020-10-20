@@ -1,14 +1,14 @@
-preprocessing=TRUE
-weighting="ga"
+preprocessing=FALSE
+weighting="lm"
 MLP_layer=1
 location="Jakarta"
 denomination="K100000"
 
-ARIMAX_MLPX_Parallel(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
-                   location=location,denomination=denomination)
+#ARIMAX_MLPX_Series(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
+#                   location=location,denomination=denomination)
 
-ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomination)
-{
+#ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
+#{
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
@@ -52,12 +52,13 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   xreg_data<-split_data(xreg_xts,20)
 
   arima.model<-auto.arima(train_test_data$train,xreg = xreg_data$train)
+  residual<-train_test_data$train-arima.model$fitted
   
   if(MLP_layer==1)
   {
     testFun <- function(x)
     {
-      mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
+      mlp.model<-mlp(residual,hd=c(x[1]),
                      reps = 1,
                      lags = 1:60,
                      xreg =as.data.frame(xreg_data$train),
@@ -70,7 +71,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   }else if(MLP_layer==2){
     testFun <- function(x)
     {
-      mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
+      mlp.model<-mlp(residual,hd=c(x[1],x[2]),
                      reps = 1,
                      lags = 1:60,
                      xreg =as.data.frame(xreg_data$train),
@@ -81,7 +82,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
   }
   
-  mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
+  mlp.model<-mlp(residual,hd=c(sol$minlevels),
                  reps = 1,
                  lags = 1:60,
                  xreg =as.data.frame(xreg_data$train),
@@ -91,40 +92,13 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   
   if(preprocessing==TRUE){
+    result<-ts.intersect(result[,1],result[,2]+result[,3])
     result<-result %>% InvBoxCox(lambda=lambda)
-    colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
+    colnames(result)<-c("train_data","fitted")
+  }else{
+    result<-ts.intersect(result[,1],result[,2]+result[,3])
+    colnames(result)<-c("train_data","fitted")
   }
-  
-  ##weighting##
-  if(weighting=="equal"){
-    result_weight<-ts.intersect(result[,1],0.5*result[,2],0.5*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-  }else if(weighting=="lm"){
-    lm.model<-lm(train_data~0+mlp_fitted+arima_fitted,data=result)
-    result_weight<-ts.intersect(result[,1],
-                                as.numeric(lm.model$coefficients[1])*result[,2],
-                                as.numeric(lm.model$coefficients[2])*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-  }else if(weighting=="ga"){
-    weight_kecil<-function(w1,w2) 
-    {
-      sse(result[,1],
-          w1*na.omit(result[,2])+w2*na.omit(result[,3]))
-    }
-    
-    set.seed(72)
-    GA <- ga(type = "real-valued",pmutation=0.5,
-             fitness = function(w) -weight_kecil(w[1],w[2]),
-             lower =c(-1,-1), upper = c(1,1),
-             maxiter=500,parallel=TRUE,seed=72)
-    
-    result_weight<-ts.intersect(result[,1],
-                                GA@solution[1]*result[,2],
-                                GA@solution[2]*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-    
-  }
-  
 
   
   linearmodel.candidate<-as.character(arima.model)
@@ -132,19 +106,19 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
   
-  compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Parallel",
+  compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
                                     fh=0,
-                                    MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
-                                    RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                    MAPE=TSrepr::mape(result[,1],result[,2]),
+                                    RMSE=TSrepr::rmse(result[,1],result[,2]),
                                     linearmodel=linearmodel.candidate,
                                     nonlinearmodel=nonlinearmodel.candidate,
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
-                                    weighting=weighting))
+                                    weighting=""))
   
   
   
@@ -153,38 +127,27 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
                       xreg = as.data.frame(xreg_xts))
     frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
     
-    mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda)
-    arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda)
-    test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
-    
-    if(weighting=="equal"){
-      result.pred.weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
-    }else if(weighting=="lm"){
-      result.pred.weight<-ts.intersect(test.data,
-                                as.numeric(lm.model$coefficients[1])*mlp.mean,
-                                as.numeric(lm.model$coefficients[2])*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
-    }else if(weighting=="ga"){
-      result.pred.weight<-ts.intersect(test.data,
-                                GA@solution[1]*mlp.mean,
-                                GA@solution[2]*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
+    if(preprocessing==TRUE){
+      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
+    }else{
+      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean)  
     }
     
-    compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Parallel",
+    colnames(result.pred)<-c("train_data","forecast")
+    
+    compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
                                       fh=fh,
-                                      MAPE=TSrepr::mape(result.pred.weight[,1],result.pred.weight[,2]+result.pred.weight[,3]),
-                                      RMSE=TSrepr::rmse(result.pred.weight[,1],result.pred.weight[,2]+result.pred.weight[,3]),
+                                      MAPE=TSrepr::mape(result.pred[,1],result.pred[,2]),
+                                      RMSE=TSrepr::rmse(result.pred[,1],result.pred[,2]),
                                       linearmodel=linearmodel.candidate,
                                       nonlinearmodel=nonlinearmodel.candidate,
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,
-                                      weighting=weighting))
+                                      weighting=""))
 
   }
 
@@ -194,6 +157,6 @@ return(compile)
   
   
   
-}
+#}
 
 
