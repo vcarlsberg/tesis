@@ -81,7 +81,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
 	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
-    gridsearchNN<-bind_rows(gridsearchNN,gs.result)
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),

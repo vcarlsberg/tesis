@@ -68,8 +68,6 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
-    
-    
   }else if(MLP_layer==2){
     testFun <- function(x)
     {
@@ -85,7 +83,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
-    gridsearchNN<-bind_rows(gridsearchNN,gs.result)
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
     
   }
   
@@ -115,7 +113,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                                     DateExecuted=dateexecuted ))
   
   for (fh in 1:24) {
-    frc.mlp<-forecast(mlp.model,h=fh)
+    frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
     result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean)
     colnames(result.pred)<-c("test_data","mlp_fitted")
     
