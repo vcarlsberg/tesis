@@ -8,7 +8,7 @@ nn_gridsearch_result<-data.frame()
 
 for (location in c("Jakarta"))
 {
-  for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+  for (denomination in c("K100000"))
   {
     for (preprocessing in c(TRUE,FALSE))
     {

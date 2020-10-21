@@ -78,12 +78,12 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination)
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:2,1:2))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
-    gridsearchNN<-bind_rows(gridsearchNN,gs.result)
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
     
   }
   
