@@ -1,12 +1,3 @@
-preprocessing=TRUE
-weighting="ga"
-MLP_layer=1
-location="Jakarta"
-denomination="K100000"
-
-ARIMAX_MLPX_Parallel(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
-                   location=location,denomination=denomination)
-
 ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
@@ -32,6 +23,17 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
                           weighting=character())
     
   }
+  
+  if(!exists("gridsearchNN")){
+    gridsearchNN <- data.frame(ID=character(),
+                               DateExecuted=character(),
+                               layer1=character(),
+                               layer2=character(),
+                               error=numeric()
+    )
+    
+  }
+  
   
   data<-read_data(location,denomination)
   
@@ -65,6 +67,11 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
                      )
       mlp.model$MSE
     }
+	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    row.names(gs.result)<-NULL
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
+	
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
   }else if(MLP_layer==2){
@@ -77,7 +84,11 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    row.names(gs.result)<-NULL
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
+	
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
   }
   
@@ -189,7 +200,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   }
 
   
-return(compile)  
+return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
     
   
   

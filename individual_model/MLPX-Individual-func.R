@@ -1,12 +1,8 @@
-
-MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
+MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
-  
-  id<-random_id()
-  dateexecuted<-Sys.time()
   
   if(!exists("compile")){
     compile <- data.frame(ID=character(),
@@ -20,19 +16,22 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                           RMSE=numeric(),
                           linearmodel=character(),
                           nonlinearmodel=character(),
-                          preprocessing=character(),
-                          weighting=character())
+                          preprocessing=character())
     
   }
   
   if(!exists("gridsearchNN")){
-  gridsearchNN <- data.frame(ID=character(),
+    gridsearchNN <- data.frame(ID=character(),
                                DateExecuted=character(),
                                layer1=character(),
                                layer2=character(),
-                               error=numeric())
+                               error=numeric()
+    )
     
   }
+  
+  id<-random_id()
+  dateexecuted<-Sys.time()
   
   data<-read_data(location,denomination)
   
@@ -63,12 +62,13 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
-	sol <- gridSearch(fun = testFun, levels = list(1:20))
     
   }else if(MLP_layer==2){
     testFun <- function(x)
@@ -80,13 +80,13 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-	
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
-    gridsearchNN<-rbind(gridsearchNN,gs.result)
-	
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    gridsearchNN<-bind_rows(gridsearchNN,gs.result)
+    
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
@@ -95,79 +95,50 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                  xreg =as.data.frame(xreg_data$train),
                  xreg.lags=list(0),xreg.keep=list(TRUE))
   
+  result<-ts.intersect(train_test_data$train,mlp.model$fitted)
+  colnames(result)<-c("train_data","mlp_fitted")
   
-  residual<-train_test_data$train-mlp.model$fitted
-  
-  residual<-ts.intersect(residual,xreg_data$train)
-  arima.model<-auto.arima(residual[,1],xreg = residual[,2])
-  
-  result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted)
-  colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
-  
-  if(preprocessing==TRUE){
-    result<-ts.intersect(result[,1],result[,2]+result[,3])
-    result<-result %>% InvBoxCox(lambda=lambda)
-    colnames(result)<-c("train_data","fitted")
-  }else{
-    result<-ts.intersect(result[,1],result[,2]+result[,3])
-    colnames(result)<-c("train_data","fitted")
-  }
-  
-
-  linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
-  
-  compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+  compile<-rbind(compile,data.frame(Model="MLP-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
                                     fh=0,
                                     MAPE=TSrepr::mape(result[,1],result[,2]),
                                     RMSE=TSrepr::rmse(result[,1],result[,2]),
-                                    linearmodel=linearmodel.candidate,
+                                    linearmodel="",
                                     nonlinearmodel=nonlinearmodel.candidate,
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
-                                    DateExecuted=dateexecuted,
-                                    weighting=""))
-  
-  
+                                    DateExecuted=dateexecuted ))
   
   for (fh in 1:24) {
-    frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
-    frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+    frc.mlp<-forecast(mlp.model,h=fh)
+    result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean)
+    colnames(result.pred)<-c("test_data","mlp_fitted")
     
-    if(preprocessing==TRUE){
-      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
-    }else{
-      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean)  
-    }
+    mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda)
+    test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
     
+    result.pred<-ts.intersect(test.data,mlp.mean)
+    colnames(result.pred)<-c("train_data","mlp_fitted")
     
-    compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+    compile<-rbind(compile,data.frame(Model="MLP-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
                                       fh=fh,
                                       MAPE=TSrepr::mape(result.pred[,1],result.pred[,2]),
                                       RMSE=TSrepr::rmse(result.pred[,1],result.pred[,2]),
-                                      linearmodel=linearmodel.candidate,
+                                      linearmodel="",
                                       nonlinearmodel=nonlinearmodel.candidate,
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
-                                      DateExecuted=dateexecuted,
-                                      weighting=""))
-
+                                      DateExecuted=dateexecuted ))
   }
-
   
-return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
-    
-  
-  
+  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
   
 }
-
-

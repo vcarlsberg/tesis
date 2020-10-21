@@ -1,12 +1,3 @@
-preprocessing=TRUE
-weighting="ga"
-MLP_layer=1
-location="Jakarta"
-denomination="K100000"
-
-ARIMA_MLP_Parallel(preprocessing=preprocessing,weighting=weighting,MLP_layer=MLP_layer,
-                   location=location,denomination=denomination)
-
 ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
@@ -30,6 +21,16 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                           nonlinearmodel=character(),
                           preprocessing=character(),
                           weighting=character())
+    
+  }
+  
+  if(!exists("gridsearchNN")){
+    gridsearchNN <- data.frame(ID=character(),
+                               DateExecuted=character(),
+                               layer1=character(),
+                               layer2=character(),
+                               error=numeric()
+    )
     
   }
   
@@ -60,6 +61,11 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
       mlp.model$MSE
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
+	
+	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    row.names(gs.result)<-NULL
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    gridsearchNN<-rbind(gridsearchNN,gs.result)
     
   }else if(MLP_layer==2){
     testFun <- function(x)
@@ -71,6 +77,11 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
     }
     
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+	
+	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    row.names(gs.result)<-NULL
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    gridsearchNN<-bind_rows(gridsearchNN,gs.result)
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
@@ -178,7 +189,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
   }
 
   
-return(compile)  
+  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
     
   
   
