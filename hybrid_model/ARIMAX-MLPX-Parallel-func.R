@@ -77,12 +77,14 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
       )
       mlp.model$MSE
     }
+    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    
     
   }else if(MLP_layer==2){
     testFun <- function(x)
@@ -94,12 +96,14 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
@@ -112,7 +116,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   
   if(preprocessing==TRUE){
-    result<-result %>% InvBoxCox(lambda=lambda)
+    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
     colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   }
   

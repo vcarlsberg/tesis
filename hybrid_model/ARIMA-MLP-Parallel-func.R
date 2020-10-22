@@ -104,7 +104,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   
   if(preprocessing==TRUE){
-    result<-result %>% InvBoxCox(lambda=lambda)
+    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
     colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   }
   

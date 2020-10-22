@@ -66,12 +66,14 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
                      )
       mlp.model$MSE
     }
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    
+	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
 	
-    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    
     
   }else if(MLP_layer==2){
     testFun <- function(x)
@@ -83,12 +85,14 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    
+	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
 	
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    
   }
   
   mlp.model<-mlp(residual,hd=c(sol$minlevels),
@@ -102,7 +106,7 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
   
   if(preprocessing==TRUE){
     result<-ts.intersect(result[,1],result[,2]+result[,3])
-    result<-result %>% InvBoxCox(lambda=lambda)
+    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
     colnames(result)<-c("train_data","fitted")
   }else{
     result<-ts.intersect(result[,1],result[,2]+result[,3])

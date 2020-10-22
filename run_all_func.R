@@ -75,7 +75,7 @@ for (location in c("Jakarta"))
 
 for (location in c("Jakarta"))
 {
-  for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+  for (denomination in c("K10000","K5000","K2000","K1000"))
   {
     for (preprocessing in c(TRUE,FALSE))
     {
@@ -107,7 +107,7 @@ for (location in c("Jakarta"))
     {
       for (MLP_layer in c(1,2))
       {
-        for (weighting in c("equal","lm","ga"))
+        for (weighting in c("equal","linear","ga"))
         {
           print(paste(location,denomination,preprocessing,MLP_layer,weighting))
           
