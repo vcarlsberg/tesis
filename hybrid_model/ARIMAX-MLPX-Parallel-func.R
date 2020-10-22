@@ -141,7 +141,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomi
     GA <- ga(type = "real-valued",pmutation=0.5,
              fitness = function(w) -weight_kecil(w[1],w[2]),
              lower =c(-1,-1), upper = c(1,1),
-             maxiter=500,parallel=TRUE,seed=72)
+             maxiter=500,parallel=TRUE,seed=72,monitor = FALSE)
     
     result_weight<-ts.intersect(result[,1],
                                 GA@solution[1]*result[,2],
