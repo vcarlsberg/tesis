@@ -78,7 +78,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination)
                      xreg.lags=list(0),xreg.keep=list(TRUE))
       mlp.model$MSE
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:2,1:2))
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL

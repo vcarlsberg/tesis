@@ -99,7 +99,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
-  compile<-rbind(compile,data.frame(Model="MLP-Individual",
+  compile<-rbind(compile,data.frame(Model="MLPX-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -123,7 +123,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
     result.pred<-ts.intersect(test.data,mlp.mean)
     colnames(result.pred)<-c("train_data","mlp_fitted")
     
-    compile<-rbind(compile,data.frame(Model="MLP-Individual",
+    compile<-rbind(compile,data.frame(Model="MLPX-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
