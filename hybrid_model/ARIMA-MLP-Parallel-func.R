@@ -34,6 +34,18 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
     
   }
   
+  if(!exists("weightingInfo")){
+    weightingInfo <- data.frame(ID=character(),
+                                DateExecuted=character(),
+                                WeightModel1=numeric(),
+                                WeightModel2=numeric(),
+                                Method=character()
+    )
+    
+  }
+  
+  
+  
   data<-read_data(location,denomination)
   
   flow_data_xts <- ts(data[,3],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
@@ -48,7 +60,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
   }
   
   train_test_data<-split_data(flow_data_transformed,20)
-
+  
   arima.model<-auto.arima(train_test_data$train)
   
   if(MLP_layer==1)
@@ -61,8 +73,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
       mlp.model$MSE
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
-	
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
@@ -77,8 +89,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
     }
     
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
-	
-	gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
@@ -100,12 +112,16 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
   if(weighting=="equal"){
     result_weight<-ts.intersect(result[,1],0.5*result[,2],0.5*result[,3])
     colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+    weight1<-0.5
+    weight2<-0.5
   }else if(weighting=="lm"){
     lm.model<-lm(train_data~0+mlp_fitted+arima_fitted,data=result)
     result_weight<-ts.intersect(result[,1],
                                 as.numeric(lm.model$coefficients[1])*result[,2],
                                 as.numeric(lm.model$coefficients[2])*result[,3])
     colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+    weight1<-as.numeric(lm.model$coefficients[1])
+    weight2<-as.numeric(lm.model$coefficients[2])
   }else if(weighting=="ga"){
     weight_kecil<-function(w1,w2) 
     {
@@ -123,15 +139,24 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                                 GA@solution[1]*result[,2],
                                 GA@solution[2]*result[,3])
     colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+    weight1<-GA@solution[1]
+    weight2<-GA@solution[2]
     
   }
   
-
+  
   
   linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
+  weightingInfo<-rbind(weightingInfo,data.frame(
+    ID=id,
+    DateExecuted=dateexecuted,
+    WeightModel1=weight1,
+    WeightModel2=weight2,
+    Method=weighting
+  ))
   
   compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
                                     InOutSample="In Sample",
@@ -162,13 +187,13 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
       colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
     }else if(weighting=="lm"){
       result.pred.weight<-ts.intersect(test.data,
-                                as.numeric(lm.model$coefficients[1])*mlp.mean,
-                                as.numeric(lm.model$coefficients[2])*arima.mean)
+                                       as.numeric(lm.model$coefficients[1])*mlp.mean,
+                                       as.numeric(lm.model$coefficients[2])*arima.mean)
       colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
     }else if(weighting=="ga"){
       result.pred.weight<-ts.intersect(test.data,
-                                GA@solution[1]*mlp.mean,
-                                GA@solution[2]*arima.mean)
+                                       GA@solution[1]*mlp.mean,
+                                       GA@solution[2]*arima.mean)
       colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
     }
     
@@ -185,12 +210,12 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                                       ID=id,
                                       DateExecuted=dateexecuted,
                                       weighting=weighting))
-
-  }
-
-  
-  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
     
+  }
+  
+  
+  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN,"weightingInfo"=weightingInfo))
+  
   
   
   

@@ -3,8 +3,12 @@ source("individual_model/ARIMAX-Individual-func.R")
 source("individual_model/MLP-Individual-func.R")
 source("individual_model/MLPX-Individual-func.R")
 
+source("hybrid_model/ARIMA-MLP-Parallel-func.R")
+source("hybrid_model/ARIMAX-MLPX-Parallel-func.R")
+
 compiled_result<-data.frame()
 nn_gridsearch_result<-data.frame()
+weighting_result<-data.frame()
 
 for (location in c("Jakarta"))
 {
@@ -15,13 +19,13 @@ for (location in c("Jakarta"))
       result<-ARIMA_Individual(preprocessing = preprocessing,
                                location=location,
                                denomination=denomination)
-
+      
       compiled_result<-rbind(compiled_result,result)
-
+      
       result<-ARIMAX_Individual(preprocessing = preprocessing,
-                               location=location,
-                               denomination=denomination)
-
+                                location=location,
+                                denomination=denomination)
+      
       compiled_result<-rbind(compiled_result,result)
     }
   }
@@ -43,7 +47,7 @@ for (location in c("Jakarta"))
         compiled_result<-rbind(compiled_result,result$modelResult)
         nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
       }
-
+      
     }
   }
 }
@@ -65,6 +69,58 @@ for (location in c("Jakarta"))
         nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
       }
       
+    }
+  }
+}
+
+for (location in c("Jakarta"))
+{
+  for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+  {
+    for (preprocessing in c(TRUE,FALSE))
+    {
+      for (MLP_layer in c(1,2))
+      {
+        for (weighting in c("equal","lm","ga"))
+        {
+          print(paste(location,denomination,preprocessing,MLP_layer,weighting))
+          
+          result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
+                                     location=location,
+                                     denomination=denomination,
+                                     MLP_layer=MLP_layer,
+                                     weighting=weighting)
+          compiled_result<-rbind(compiled_result,result$modelResult)
+          nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+          weighting_result<-rbind(weighting_result,result$weightingInfo)
+        }
+      }
+    }
+  }
+}
+
+for (location in c("Jakarta"))
+{
+  for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+  {
+    for (preprocessing in c(TRUE,FALSE))
+    {
+      for (MLP_layer in c(1,2))
+      {
+        for (weighting in c("equal","lm","ga"))
+        {
+          print(paste(location,denomination,preprocessing,MLP_layer,weighting))
+          
+          result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
+                                     location=location,
+                                     denomination=denomination,
+                                     MLP_layer=MLP_layer,
+                                     weighting=weighting)
+          compiled_result<-rbind(compiled_result,result$modelResult)
+          nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+          weighting_result<-rbind(weighting_result,result$weightingInfo)
+        }
+      }
     }
   }
 }
