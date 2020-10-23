@@ -43,13 +43,8 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
   xreg_xts<-ts(data[,4],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                frequency=12)
   
-  if(preprocessing==TRUE)
-  {
-    lambda<-BoxCox.lambda(flow_data_xts)
-    flow_data_transformed<-BoxCox(flow_data_xts,lambda=lambda)
-  }else{
-    flow_data_transformed<-flow_data_xts
-  }
+  lambda<-preprocessing
+  flow_data_transformed<-BoxCox(flow_data_xts,lambda=lambda)
   
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
@@ -100,7 +95,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
   colnames(result)<-c("train_data","mlp_fitted")
   
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
-  preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
+  preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   compile<-rbind(compile,data.frame(Model="MLPX-Individual",
                                     InOutSample="In Sample",
@@ -123,8 +118,8 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
     result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean)
     colnames(result.pred)<-c("test_data","mlp_fitted")
     
-    mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda)
-    test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
+    mlp.mean<-frc.mlp$mean%>%InvBoxCox(lambda=lambda)
+    test.data<-train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
     
     result.pred<-ts.intersect(test.data,mlp.mean)
     colnames(result.pred)<-c("train_data","mlp_fitted")
