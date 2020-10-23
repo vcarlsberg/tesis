@@ -80,6 +80,7 @@ for (location in c("Jakarta"))
     {
       for (MLP_layer in c(1,2))
       {
+<<<<<<< HEAD
 
           print(paste(location,denomination,preprocessing,MLP_layer))
           
@@ -89,6 +90,17 @@ for (location in c("Jakarta"))
                                      MLP_layer=MLP_layer)
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+=======
+        
+        print(paste(location,denomination,preprocessing,MLP_layer))
+        
+        result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
+                                   location=location,
+                                   denomination=denomination,
+                                   MLP_layer=MLP_layer)
+        compiled_result<-rbind(compiled_result,result$modelResult)
+        nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+>>>>>>> 1cfe16fa22cb4f08bd2a652e5cd8807288da254e
         
       }
     }
@@ -103,6 +115,7 @@ for (location in c("Jakarta"))
     {
       for (MLP_layer in c(1,2))
       {
+<<<<<<< HEAD
           print(paste(location,denomination,preprocessing,MLP_layer))
           
           result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
@@ -111,6 +124,16 @@ for (location in c("Jakarta"))
                                      MLP_layer=MLP_layer)
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+=======
+        print(paste(location,denomination,preprocessing,MLP_layer))
+        
+        result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
+                                     location=location,
+                                     denomination=denomination,
+                                     MLP_layer=MLP_layer)
+        compiled_result<-rbind(compiled_result,result$modelResult)
+        nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+>>>>>>> 1cfe16fa22cb4f08bd2a652e5cd8807288da254e
         
       }
     }

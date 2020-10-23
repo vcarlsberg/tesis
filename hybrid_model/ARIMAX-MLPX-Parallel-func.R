@@ -142,8 +142,8 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
                                         weightingModel2=weight2))
       
       for (fh in 1:24) {
-        frc.mlp<-forecast(mlp.model,h=fh)
-        frc.arima<-forecast(arima.model,h=fh)
+        frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
+        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
         mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
         arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
@@ -196,8 +196,8 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
                                         weightingModel2=weight2))
       
       for (fh in 1:24) {
-        frc.mlp<-forecast(mlp.model,h=fh)
-        frc.arima<-forecast(arima.model,h=fh)
+        frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
+        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
         mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
         arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
@@ -260,8 +260,8 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
                                         weightingModel2=weight2))
       
       for (fh in 1:24) {
-        frc.mlp<-forecast(mlp.model,h=fh)
-        frc.arima<-forecast(arima.model,h=fh)
+        frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
+        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
         mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
         arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
