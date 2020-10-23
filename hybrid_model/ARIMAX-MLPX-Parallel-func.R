@@ -1,4 +1,4 @@
-ARIMAX_MLPX_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomination)
+ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
   init_run()

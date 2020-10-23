@@ -8,7 +8,6 @@ source("hybrid_model/ARIMAX-MLPX-Parallel-func.R")
 
 compiled_result<-data.frame()
 nn_gridsearch_result<-data.frame()
-weighting_result<-data.frame()
 
 for (location in c("Jakarta"))
 {
@@ -82,16 +81,14 @@ for (location in c("Jakarta"))
       for (MLP_layer in c(1,2))
       {
 
-          print(paste(location,denomination,preprocessing,MLP_layer,weighting))
+          print(paste(location,denomination,preprocessing,MLP_layer))
           
           result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
                                      location=location,
                                      denomination=denomination,
-                                     MLP_layer=MLP_layer,
-                                     weighting=weighting)
+                                     MLP_layer=MLP_layer)
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-          weighting_result<-rbind(weighting_result,result$weightingInfo)
         
       }
     }
@@ -106,16 +103,14 @@ for (location in c("Jakarta"))
     {
       for (MLP_layer in c(1,2))
       {
-          print(paste(location,denomination,preprocessing,MLP_layer,weighting))
+          print(paste(location,denomination,preprocessing,MLP_layer))
           
           result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
                                      location=location,
                                      denomination=denomination,
-                                     MLP_layer=MLP_layer,
-                                     weighting=weighting)
+                                     MLP_layer=MLP_layer)
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-          weighting_result<-rbind(weighting_result,result$weightingInfo)
         
       }
     }
