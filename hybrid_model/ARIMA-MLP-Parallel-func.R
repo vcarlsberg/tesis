@@ -64,7 +64,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
                      lags = 1:60)
       mlp.model$MSE
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:2))
+    sol <- gridSearch(fun = testFun, levels = list(1:20))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
@@ -80,7 +80,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
       mlp.model$MSE
     }
     
-    sol <- gridSearch(fun = testFun, levels = list(1:2,1:2))
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
