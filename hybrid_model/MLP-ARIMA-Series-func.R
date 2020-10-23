@@ -20,7 +20,9 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                           linearmodel=character(),
                           nonlinearmodel=character(),
                           preprocessing=character(),
-                          weighting=character())
+                          weightingMethod=character(),
+                          weightingModel1=numeric(),
+                          weightingModel2=numeric())
     
   }
   
@@ -124,7 +126,9 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
-                                    weighting=""))
+                                    weightingMethod="",
+                                    weightingModel1="",
+                                    weightingModel2=""))
   
   
   
@@ -151,7 +155,9 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,
-                                      weighting=""))
+                                      weightingMethod="",
+                                      weightingModel1="",
+                                      weightingModel2=""))
 
   }
 

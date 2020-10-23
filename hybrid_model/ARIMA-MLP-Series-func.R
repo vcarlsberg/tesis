@@ -20,7 +20,9 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
                           linearmodel=character(),
                           nonlinearmodel=character(),
                           preprocessing=character(),
-                          weighting=character())
+                          weightingMethod=character(),
+                          weightingModel1=numeric(),
+                          weightingModel2=numeric())
     
   }
   
@@ -96,7 +98,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
   
   if(preprocessing==TRUE){
     result<-ts.intersect(result[,1],result[,2]+result[,3])
-    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
+    result<-result %>% InvBoxCox(lambda=lambda)
     colnames(result)<-c("train_data","fitted")
   }else{
     result<-ts.intersect(result[,1],result[,2]+result[,3])
@@ -121,7 +123,9 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
-                                    weighting=""))
+                                    weightingMethod="",
+                                    weightingModel1="",
+                                    weightingModel2=""))
   
   
   
@@ -148,7 +152,9 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,
-                                      weighting=""))
+                                      weightingMethod="",
+                                      weightingModel1="",
+                                      weightingModel2=""))
 
   }
 

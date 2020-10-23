@@ -16,7 +16,10 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                           RMSE=numeric(),
                           linearmodel=character(),
                           nonlinearmodel=character(),
-                          preprocessing=character())
+                          preprocessing=character(),
+                          weightingMethod=character(),
+                          weightingModel1=numeric(),
+                          weightingModel2=numeric())
     
   }
   
@@ -110,7 +113,10 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                                     nonlinearmodel=nonlinearmodel.candidate,
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
-                                    DateExecuted=dateexecuted ))
+                                    DateExecuted=dateexecuted,
+                                    weightingMethod="",
+                                    weightingModel1="",
+                                    weightingModel2=""))
   
   for (fh in 1:24) {
     frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
@@ -134,7 +140,10 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                                       nonlinearmodel=nonlinearmodel.candidate,
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
-                                      DateExecuted=dateexecuted ))
+                                      DateExecuted=dateexecuted,
+                                      weightingMethod="",
+                                      weightingModel1="",
+                                      weightingModel2=""))
   }
   
   return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))

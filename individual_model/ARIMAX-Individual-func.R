@@ -16,7 +16,10 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                           RMSE=numeric(),
                           linearmodel=character(),
                           nonlinearmodel=character(),
-                          preprocessing=character())
+                          preprocessing=character(),
+                          weightingMethod=character(),
+                          weightingModel1=numeric(),
+                          weightingModel2=numeric())
     
   }
   
@@ -67,7 +70,10 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                                     nonlinearmodel="",
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
-                                    DateExecuted=dateexecuted))
+                                    DateExecuted=dateexecuted,
+                                    weightingMethod="",
+                                    weightingModel1="",
+                                    weightingModel2=""))
   
   for (fh in 1:24) {
     frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
@@ -92,7 +98,10 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                                       nonlinearmodel="" ,
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
-                                      DateExecuted=dateexecuted))
+                                      DateExecuted=dateexecuted,
+                                      weightingMethod="",
+                                      weightingModel1="",
+                                      weightingModel2=""))
   }
 
 	return(compile)
