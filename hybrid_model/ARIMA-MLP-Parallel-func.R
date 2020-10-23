@@ -1,11 +1,11 @@
-ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomination)
+ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
   
-  id<-random_id()
   dateexecuted<-Sys.time()
+  id<-random_id()
   
   if(!exists("compile")){
     compile <- data.frame(ID=character(),
@@ -20,7 +20,9 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                           linearmodel=character(),
                           nonlinearmodel=character(),
                           preprocessing=character(),
-                          weighting=character())
+                          weightingMethod=character(),
+                          weightingModel1=numeric(),
+                          weightingModel2=numeric())
     
   }
   
@@ -30,16 +32,6 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                                layer1=character(),
                                layer2=character(),
                                error=numeric()
-    )
-    
-  }
-  
-  if(!exists("weightingInfo")){
-    weightingInfo <- data.frame(ID=character(),
-                                DateExecuted=character(),
-                                WeightModel1=numeric(),
-                                WeightModel2=numeric(),
-                                Method=character()
     )
     
   }
@@ -72,7 +64,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
                      lags = 1:60)
       mlp.model$MSE
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:2))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
@@ -88,7 +80,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
       mlp.model$MSE
     }
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:2,1:2))
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
@@ -108,113 +100,188 @@ ARIMA_MLP_Parallel<-function(preprocessing,weighting,MLP_layer,location,denomina
     colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   }
   
-  ##weighting##
-  if(weighting=="equal"){
-    result_weight<-ts.intersect(result[,1],0.5*result[,2],0.5*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-    weight1<-0.5
-    weight2<-0.5
-  }else if(weighting=="lm"){
-    lm.model<-lm(train_data~0+mlp_fitted+arima_fitted,data=result)
-    result_weight<-ts.intersect(result[,1],
-                                as.numeric(lm.model$coefficients[1])*result[,2],
-                                as.numeric(lm.model$coefficients[2])*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-    weight1<-as.numeric(lm.model$coefficients[1])
-    weight2<-as.numeric(lm.model$coefficients[2])
-  }else if(weighting=="ga"){
-    weight_kecil<-function(w1,w2) 
-    {
-      sse(result[,1],
-          w1*na.omit(result[,2])+w2*na.omit(result[,3]))
-    }
-    
-    set.seed(72)
-    GA <- ga(type = "real-valued",pmutation=0.5,
-             fitness = function(w) -weight_kecil(w[1],w[2]),
-             lower =c(-1,-1), upper = c(1,1),
-             maxiter=500,parallel=TRUE,seed=72,monitor = FALSE)
-    
-    result_weight<-ts.intersect(result[,1],
-                                GA@solution[1]*result[,2],
-                                GA@solution[2]*result[,3])
-    colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
-    weight1<-GA@solution[1]
-    weight2<-GA@solution[2]
-    
-  }
-  
-  
-  
   linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
   
-  weightingInfo<-rbind(weightingInfo,data.frame(
-    ID=id,
-    DateExecuted=dateexecuted,
-    WeightModel1=weight1,
-    WeightModel2=weight2,
-    Method=weighting
-  ))
   
-  compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
-                                    InOutSample="In Sample",
-                                    Location=location,
-                                    Denomination=denomination,
-                                    fh=0,
-                                    MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
-                                    RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
-                                    linearmodel=linearmodel.candidate,
-                                    nonlinearmodel=nonlinearmodel.candidate,
-                                    preprocessing=preprocessing.candidate,
-                                    ID=id,
-                                    DateExecuted=dateexecuted,
-                                    weighting=weighting))
-  
-  
-  
-  for (fh in 1:24) {
-    frc.mlp<-forecast(mlp.model,h=fh)
-    frc.arima<-forecast(arima.model,h=fh)
-    
-    mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda)
-    arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda)
-    test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
-    
-    if(weighting=="equal"){
-      result.pred.weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
+  for(weighting in c("equal","lm","ga"))
+  {
+    if(weighting=="equal")
+    {
+      result_weight<-ts.intersect(result[,1],0.5*result[,2],0.5*result[,3])
+      colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+      weight1<-0.5
+      weight2<-0.5
+      
+      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                        InOutSample="In Sample",
+                                        Location=location,
+                                        Denomination=denomination,
+                                        fh=0,
+                                        MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        linearmodel=linearmodel.candidate,
+                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        preprocessing=preprocessing.candidate,
+                                        ID=id,
+                                        DateExecuted=dateexecuted,
+                                        weightingMethod=weighting,
+                                        weightingModel1=weight1,
+                                        weightingModel2=weight2))
+      
+      for (fh in 1:24) {
+        frc.mlp<-forecast(mlp.model,h=fh)
+        frc.arima<-forecast(arima.model,h=fh)
+        
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        
+        result_pred_weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
+        colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
+        
+        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                          InOutSample="Out Sample",
+                                          Location=location,
+                                          Denomination=denomination,
+                                          fh=fh,
+                                          MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          linearmodel=linearmodel.candidate,
+                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          preprocessing=preprocessing.candidate,
+                                          ID=id,
+                                          DateExecuted=dateexecuted,
+                                          weightingMethod=weighting,
+                                          weightingModel1=weight1,
+                                          weightingModel2=weight2))
+        
+      }
+      
     }else if(weighting=="lm"){
-      result.pred.weight<-ts.intersect(test.data,
-                                       as.numeric(lm.model$coefficients[1])*mlp.mean,
-                                       as.numeric(lm.model$coefficients[2])*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
+      lm.model<-lm(train_data~0+mlp_fitted+arima_fitted,data=result)
+      result_weight<-ts.intersect(result[,1],
+                                  as.numeric(lm.model$coefficients[1])*result[,2],
+                                  as.numeric(lm.model$coefficients[2])*result[,3])
+      colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+      weight1<-as.numeric(lm.model$coefficients[1])
+      weight2<-as.numeric(lm.model$coefficients[2])
+      
+      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                        InOutSample="In Sample",
+                                        Location=location,
+                                        Denomination=denomination,
+                                        fh=0,
+                                        MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        linearmodel=linearmodel.candidate,
+                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        preprocessing=preprocessing.candidate,
+                                        ID=id,
+                                        DateExecuted=dateexecuted,
+                                        weightingMethod=weighting,
+                                        weightingModel1=weight1,
+                                        weightingModel2=weight2))
+      
+      for (fh in 1:24) {
+        frc.mlp<-forecast(mlp.model,h=fh)
+        frc.arima<-forecast(arima.model,h=fh)
+        
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        
+        result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
+        colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
+        
+        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                          InOutSample="Out Sample",
+                                          Location=location,
+                                          Denomination=denomination,
+                                          fh=fh,
+                                          MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          linearmodel=linearmodel.candidate,
+                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          preprocessing=preprocessing.candidate,
+                                          ID=id,
+                                          DateExecuted=dateexecuted,
+                                          weightingMethod=weighting,
+                                          weightingModel1=weight1,
+                                          weightingModel2=weight2))
+        
+      }
     }else if(weighting=="ga"){
-      result.pred.weight<-ts.intersect(test.data,
-                                       GA@solution[1]*mlp.mean,
-                                       GA@solution[2]*arima.mean)
-      colnames(result.pred.weight)<-c("train_data","mlp_fitted","arima_fitted")
+      weight_kecil<-function(w1,w2) 
+      {
+        sse(result[,1],
+            w1*na.omit(result[,2])+w2*na.omit(result[,3]))
+      }
+      
+      set.seed(72)
+      GA <- ga(type = "real-valued",pmutation=0.5,
+               fitness = function(w) -weight_kecil(w[1],w[2]),
+               lower =c(-1,-1), upper = c(1,1),
+               maxiter=500,parallel=TRUE,seed=72,monitor = FALSE)
+      
+      result_weight<-ts.intersect(result[,1],
+                                  GA@solution[1]*result[,2],
+                                  GA@solution[2]*result[,3])
+      colnames(result_weight)<-c("train_data","mlp_fitted","arima_fitted")
+      weight1<-GA@solution[1]
+      weight2<-GA@solution[2]
+      
+      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                        InOutSample="In Sample",
+                                        Location=location,
+                                        Denomination=denomination,
+                                        fh=0,
+                                        MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
+                                        linearmodel=linearmodel.candidate,
+                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        preprocessing=preprocessing.candidate,
+                                        ID=id,
+                                        DateExecuted=dateexecuted,
+                                        weightingMethod=weighting,
+                                        weightingModel1=weight1,
+                                        weightingModel2=weight2))
+      
+      for (fh in 1:24) {
+        frc.mlp<-forecast(mlp.model,h=fh)
+        frc.arima<-forecast(arima.model,h=fh)
+        
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        
+        result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
+        colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
+        
+        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+                                          InOutSample="Out Sample",
+                                          Location=location,
+                                          Denomination=denomination,
+                                          fh=fh,
+                                          MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
+                                          linearmodel=linearmodel.candidate,
+                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          preprocessing=preprocessing.candidate,
+                                          ID=id,
+                                          DateExecuted=dateexecuted,
+                                          weightingMethod=weighting,
+                                          weightingModel1=weight1,
+                                          weightingModel2=weight2))
+        
+      }
+      
     }
-    
-    compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
-                                      InOutSample="Out Sample",
-                                      Location=location,
-                                      Denomination=denomination,
-                                      fh=fh,
-                                      MAPE=TSrepr::mape(result.pred.weight[,1],result.pred.weight[,2]+result.pred.weight[,3]),
-                                      RMSE=TSrepr::rmse(result.pred.weight[,1],result.pred.weight[,2]+result.pred.weight[,3]),
-                                      linearmodel=linearmodel.candidate,
-                                      nonlinearmodel=nonlinearmodel.candidate,
-                                      preprocessing=preprocessing.candidate,
-                                      ID=id,
-                                      DateExecuted=dateexecuted,
-                                      weighting=weighting))
-    
   }
   
   
-  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN,"weightingInfo"=weightingInfo))
+  return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
   
   
   
