@@ -61,6 +61,7 @@ init_run<-function(){
   library(TSrepr)
   library(TSstudio)
   library(tidyverse)
+  library(Ecfun)
   
   library(SmartEDA)
   library(dlookr)

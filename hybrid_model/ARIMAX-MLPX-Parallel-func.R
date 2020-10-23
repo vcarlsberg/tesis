@@ -47,7 +47,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
   if(preprocessing==TRUE)
   {
     lambda<-BoxCox.lambda(flow_data_xts)
-    flow_data_transformed<-BoxCox(flow_data_xts,lambda=lambda)
+    flow_data_transformed<-forecast::BoxCox(flow_data_xts,lambda=lambda)
   }else{
     flow_data_transformed<-flow_data_xts
   }
@@ -108,7 +108,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   
   if(preprocessing==TRUE){
-    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
+    result<-result %>% InvBoxCox(lambda=lambda)
     colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
   }
   linearmodel.candidate<-as.character(arima.model)
@@ -145,9 +145,9 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
         frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
-        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
         
         result_pred_weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
@@ -199,9 +199,9 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
         frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
-        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
         
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
@@ -263,9 +263,9 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
         frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
         
-        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) %>% na.remove()
-        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) %>% na.remove()
+        mlp.mean<-if (preprocessing==FALSE) frc.mlp$mean else frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-if (preprocessing==FALSE) frc.arima$mean else frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        test.data<-if (preprocessing==FALSE) train_test_data$test[1:fh] else train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) 
         
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
