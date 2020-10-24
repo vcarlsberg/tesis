@@ -1,5 +1,5 @@
 
-MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
+MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination)
 {
   source("~/tesis/all_function.R")
   init_run()
