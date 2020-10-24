@@ -43,13 +43,8 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
   xreg_xts<-ts(data[,4],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                frequency=12)
   
-  if(preprocessing==TRUE)
-  {
-    lambda<-BoxCox.lambda(flow_data_xts)
-    flow_data_transformed<-BoxCox(flow_data_xts,lambda=lambda)
-  }else{
-    flow_data_transformed<-flow_data_xts
-  }
+  lambda<-preprocessing
+  flow_data_transformed<-BoxCox(flow_data_xts,lambda=lambda)
   
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
@@ -87,7 +82,7 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
 	
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
 	  
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
@@ -101,31 +96,20 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
                  xreg =as.data.frame(xreg_data$train),
                  xreg.lags=list(0),xreg.keep=list(TRUE))
   
-  
   residual<-train_test_data$train-mlp.model$fitted
   
   residual<-ts.intersect(residual,xreg_data$train)
   arima.model<-auto.arima(residual[,1],xreg = residual[,2])
   
-  result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted)
+  result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted) %>% InvBoxCox(lambda=lambda)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
-  
-  if(preprocessing==TRUE){
-    result<-ts.intersect(result[,1],result[,2]+result[,3])
-    result<-result %>% InvBoxCox(lambda=lambda) %>% na.remove()
-    colnames(result)<-c("train_data","fitted")
-  }else{
-    result<-ts.intersect(result[,1],result[,2]+result[,3])
-    colnames(result)<-c("train_data","fitted")
-  }
-  
 
   linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
-  preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
+  preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   
-  compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+  compile<-rbind(compile,data.frame(Model="MLPX-ARIMAX-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -147,14 +131,14 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
     frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
     frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
     
-    if(preprocessing==TRUE){
-      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
-    }else{
-      result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean+frc.arima$mean)  
-    }
+    result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean,frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
+    colnames(result.pred)<-c("train_data","mlp_fitted","arima_fitted")
+    
+    result.pred<-ts.intersect(result.pred[,1],result.pred[,2]+result.pred[,3])
+    colnames(result.pred)<-c("test_data","forecast")
     
     
-    compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+    compile<-rbind(compile,data.frame(Model="MLPX-ARIMAX-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
