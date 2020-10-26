@@ -4,7 +4,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
   init_run()
   set.seed(72)
   
-  if(!exists("compile")){
+
     compile <- data.frame(ID=character(),
                           DateExecuted=character(),
                           Model=character(),
@@ -21,17 +21,17 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                           weightingModel1=numeric(),
                           weightingModel2=numeric())
     
-  }
+
   
-  if(!exists("gridsearchNN")){
+
     gridsearchNN <- data.frame(ID=character(),
                                DateExecuted=character(),
-                               layer1=character(),
-                               layer2=character(),
+                               layer1=numeric(),
+                               layer2=numeric(),
                                error=numeric()
     )
     
-  }
+
   
   id<-random_id()
   dateexecuted<-Sys.time()
@@ -62,7 +62,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
@@ -110,8 +110,8 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                                     ID=id,
                                     DateExecuted=dateexecuted,
                                     weightingMethod="",
-                                    weightingModel1="",
-                                    weightingModel2=""))
+                                    weightingModel1=0,
+                                    weightingModel2=0))
   
   for (fh in 1:24) {
     frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
@@ -137,8 +137,8 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination)
                                       ID=id,
                                       DateExecuted=dateexecuted,
                                       weightingMethod="",
-                                      weightingModel1="",
-                                      weightingModel2=""))
+                                      weightingModel1=0,
+                                      weightingModel2=0))
   }
   
   return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))

@@ -5,7 +5,6 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
   set.seed(72)
   
   
-  if(!exists("compile")){
     compile <- data.frame(ID=character(),
                           DateExecuted=character(),
                           Model=character(),
@@ -22,7 +21,6 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
                           weightingModel1=numeric(),
                           weightingModel2=numeric())
     
-  }
   
   id<-random_id()
   dateexecuted<-Sys.time()
@@ -60,8 +58,8 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
                                     ID=id,
                                     DateExecuted=dateexecuted,
                                     weightingMethod="",
-                                    weightingModel1="",
-                                    weightingModel2=""))
+                                    weightingModel1=0,
+                                    weightingModel2=0))
   
   for (fh in 1:24) {
     frc.arima<-forecast(arima.model,h=fh)
@@ -82,8 +80,8 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
                                       ID=id,
                                       DateExecuted=dateexecuted,
                                       weightingMethod="",
-                                      weightingModel1="",
-                                      weightingModel2=""))
+                                      weightingModel1=0,
+                                      weightingModel2=0))
   }
   
   return(compile)

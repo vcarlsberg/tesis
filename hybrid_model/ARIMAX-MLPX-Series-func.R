@@ -65,7 +65,7 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
-	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),"",as.data.frame(sol$values),id,dateexecuted)
+	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
     row.names(gs.result)<-NULL
     colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
@@ -121,8 +121,8 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
                                     ID=id,
                                     DateExecuted=dateexecuted,
                                     weightingMethod="",
-                                    weightingModel1="",
-                                    weightingModel2=""))
+                                    weightingModel1=0,
+                                    weightingModel2=0))
   
   
   
@@ -150,8 +150,8 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
                                       ID=id,
                                       DateExecuted=dateexecuted,
                                       weightingMethod="",
-                                      weightingModel1="",
-                                      weightingModel2=""))
+                                      weightingModel1=0,
+                                      weightingModel2=0))
 
   }
 

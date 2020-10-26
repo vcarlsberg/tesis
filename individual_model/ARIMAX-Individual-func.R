@@ -4,7 +4,6 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
   init_run()
   set.seed(72)
   
-  if(!exists("compile")){
     compile <- data.frame(ID=character(),
                           DateExecuted=character(),
                           Model=character(),
@@ -21,7 +20,6 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                           weightingModel1=numeric(),
                           weightingModel2=numeric())
     
-  }
   
   id<-random_id()
   dateexecuted<-Sys.time()
@@ -64,8 +62,8 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                                     ID=id,
                                     DateExecuted=dateexecuted,
                                     weightingMethod="",
-                                    weightingModel1="",
-                                    weightingModel2=""))
+                                    weightingModel1=0,
+                                    weightingModel2=0))
   
   for (fh in 1:24) {
     frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
@@ -87,8 +85,8 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
                                       ID=id,
                                       DateExecuted=dateexecuted,
                                       weightingMethod="",
-                                      weightingModel1="",
-                                      weightingModel2=""))
+                                      weightingModel1=0,
+                                      weightingModel2=0))
   }
 
 	return(compile)
