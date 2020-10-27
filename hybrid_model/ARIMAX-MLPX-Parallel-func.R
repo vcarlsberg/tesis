@@ -107,7 +107,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination)
   
   linearmodel.candidate<-as.character(arima.model)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
-  preprocessing.candidate<-if(preprocessing==TRUE) paste("Box-Cox lambda",lambda) else ""
+  preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   
   for(weighting in c("equal","lm","ga"))
