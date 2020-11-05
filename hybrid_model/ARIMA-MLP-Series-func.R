@@ -37,7 +37,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
     
 
   
-  data<-read_data(location,denomination)
+  data<-read_data(location,denomination,flow)
   
   flow_data_xts <- ts(data[,3],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                       frequency=12)

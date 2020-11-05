@@ -25,7 +25,7 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
   id<-random_id()
   dateexecuted<-Sys.time()
   
-  flow_data<-read_data(location,denomination)
+  flow_data<-read_data(location,denomination,flow)
   flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                       frequency=12)
   xreg_xts<-ts(flow_data[,4],start=c(flow_data[1,1],flow_data[1,2]), end=c(2019, 6), 
