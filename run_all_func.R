@@ -1,16 +1,5 @@
-source("individual_model/ARIMA-Individual-func.R")
-source("individual_model/ARIMAX-Individual-func.R")
-source("individual_model/MLP-Individual-func.R")
-source("individual_model/MLPX-Individual-func.R")
-
-source("hybrid_model/ARIMA-MLP-Parallel-func.R")
-source("hybrid_model/ARIMAX-MLPX-Parallel-func.R")
-
-source("hybrid_model/ARIMA-MLP-Series-func.R")
-source("hybrid_model/ARIMAX-MLPX-Series-func.R")
-source("hybrid_model/MLP-ARIMA-Series-func.R")
-source("hybrid_model/MLPX-ARIMAX-Series-func.R")
-
+source("all_function.R")
+init_run()
 
 
 compiled_result<-data.frame()
