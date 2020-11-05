@@ -1,7 +1,6 @@
 source("all_function.R")
 init_run()
 
-
 compiled_result<-data.frame()
 nn_gridsearch_result<-data.frame()
 
@@ -14,7 +13,7 @@ for (flow in c("Outflow","Inflow"))
       for (preprocessing in c(1))
       {
         tryCatch({
-          print(paste(location,denomination,preprocessing,Sys.time(),"ARIMA"))
+          print(paste(flow,location,denomination,preprocessing,Sys.time(),"ARIMA"))
           
           result<-ARIMA_Individual(preprocessing = preprocessing,
                                    location=location,
@@ -27,7 +26,7 @@ for (flow in c("Outflow","Inflow"))
         })
         
         tryCatch({
-          print(paste(location,denomination,preprocessing,Sys.time(),"ARIMAX"))
+          print(paste(flow,location,denomination,preprocessing,Sys.time(),"ARIMAX"))
           
           result<-ARIMAX_Individual(preprocessing = preprocessing,
                                    location=location,
@@ -55,7 +54,7 @@ for (flow in c("Outflow","Inflow"))
         for (MLP_layer in c(1,2))
         {
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_Individual"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_Individual"))
             
             result<-MLP_Individual(preprocessing = preprocessing,
                                    location=location,
@@ -69,7 +68,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_Individual"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_Individual"))
             
             result<-MLPX_Individual(preprocessing = preprocessing,
                                     location=location,
@@ -85,7 +84,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Parallel"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Parallel"))
             
             result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
                                        location=location,
@@ -101,7 +100,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Parallel"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Parallel"))
             
             result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
                                          location=location,
@@ -117,7 +116,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Series"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Series"))
             
             result<-ARIMA_MLP_Series(preprocessing = preprocessing,
                                      location=location,
@@ -133,7 +132,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Series"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Series"))
             
             result<-ARIMAX_MLPX_Series(preprocessing = preprocessing,
                                        location=location,
@@ -149,7 +148,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Series"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Series"))
             
             result<-MLP_ARIMA_Series(preprocessing = preprocessing,
                                      location=location,
@@ -165,7 +164,7 @@ for (flow in c("Outflow","Inflow"))
           })
           
           tryCatch({
-            print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_ARIMAX_Series"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_ARIMAX_Series"))
             
             result<-MLPX_ARIMAX_Series(preprocessing = preprocessing,
                                        location=location,
