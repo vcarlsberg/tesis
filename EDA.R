@@ -82,7 +82,7 @@ subset$Bulan<-as.numeric(subset$Bulan)
 
 View(subset %>% describe())
 
-flow_data<-read_data("Jakarta","K10000")
+flow_data<-read_data("Jakarta","K1000")
 
 #normality(subset$)
 
@@ -98,15 +98,19 @@ ndiffs(flow_data_xts)
 Acf(flow_data_xts,lag.max = 60)
 Pacf(flow_data_xts,lag.max = 60)
 
-mlpo<-mlp(flow_data_xts,hd = c(3,2),lags = 1:60)
+auto.arima(arima.sim(model=list(order=c(0,1,0)),n=1000,mean=1)) %>% as.character()
 
-(as.xts(flow_data_xts)/1000) %>% autoplot() + labs(x="Tahun",y="Nilai (dalam milyar)",title="Outflow Jakarta K10000")+
+auto.arima(flow_data_xts)
+
+#mlpo<-mlp(flow_data_xts,hd = c(3,2),lags = 1:60)
+
+(as.xts(flow_data_xts)/1000) %>% autoplot() + labs(x="Tahun",y="Nilai (dalam milyar)",title="Outflow Jakarta K1000")+
   geom_vline(xintercept = seq(from=1994, to=2019, by=1),color="grey")+ 
-  scale_x_continuous(breaks = seq(1994, 2020, 1))
+  scale_x_continuous(breaks = seq(1994, 2020, 1))+theme(text = element_text(size=16))
 
 as.xts(flow_data_xts)['2012'] %>% autoplot() + labs(x="Tahun",y="Nilai",title="Outflow Jakarta K100000")+
   geom_vline(xintercept = seq(from=2012, to=2013, by=1/12),color="grey")
-
+auto.arima(flow_data_xts)
 
 
 ggplot(aes(y), data = fortify(flow_data_xts, melt = TRUE)) +
