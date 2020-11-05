@@ -1,4 +1,4 @@
-MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
+MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -8,7 +8,8 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
   dateexecuted<-Sys.time()
   
 
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -100,7 +101,8 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
-  compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="MLP-ARIMA-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -129,7 +131,8 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination)
     colnames(result.pred)<-c("test_data","forecast")
     
     
-    compile<-rbind(compile,data.frame(Model="MLP-ARIMA-Series",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="MLP-ARIMA-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

@@ -1,4 +1,4 @@
-ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
+ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -7,8 +7,8 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
   id<-random_id()
   dateexecuted<-Sys.time()
   
-  if(!exists("compile")){
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -24,16 +24,16 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
                           weightingModel1=numeric(),
                           weightingModel2=numeric())
     
-  }
   
-  if(!exists("gridsearchNN")){
+  
+
   gridsearchNN <- data.frame(ID=character(),
                                DateExecuted=character(),
                                layer1=character(),
                                layer2=character(),
                                error=numeric())
     
-  }
+  
   
   data<-read_data(location,denomination)
   
@@ -108,7 +108,8 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
-  compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="ARIMAX-MLPX-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -137,7 +138,8 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination)
     result.pred<-ts.intersect(result.pred[,1],result.pred[,2]+result.pred[,3])
     colnames(result.pred)<-c("test_data","forecast")
     
-    compile<-rbind(compile,data.frame(Model="ARIMAX-MLPX-Series",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="ARIMAX-MLPX-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

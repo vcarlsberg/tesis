@@ -1,4 +1,4 @@
-ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
+ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -8,7 +8,8 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
   dateexecuted<-Sys.time()
   
 
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -99,7 +100,8 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   
-  compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Series",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="ARIMA-MLP-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -127,7 +129,8 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination)
     result.pred<-ts.intersect(result.pred[,1],result.pred[,2]+result.pred[,3])
     colnames(result.pred)<-c("test_data","forecast")
     
-    compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Series",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="ARIMA-MLP-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
