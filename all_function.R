@@ -90,6 +90,9 @@ init_run<-function(){
   source("hybrid_model/ARIMAX-MLPX-Parallel-func.R")
   source("hybrid_model/ARIMAX-MLPX-Series-func.R")
   
+  source("hybrid_model/MLP-ARIMA-Series-func.R")
+  source("hybrid_model/MLPX-ARIMAX-Series-func.R")
+  
   set.seed(72)
 }
 
