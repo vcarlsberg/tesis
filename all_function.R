@@ -78,6 +78,18 @@ init_run<-function(){
   
   library(GA)
   
+  source("individual_model/ARIMA-Individual-func.R")
+  source("individual_model/ARIMAX-Individual-func.R")
+  
+  source("individual_model/MLP-Individual-func.R")
+  source("individual_model/MLPX-Individual-func.R")
+  
+  source("hybrid_model/ARIMA-MLP-Parallel-func.R")
+  source("hybrid_model/ARIMA-MLP-Series-func.R")
+  
+  source("hybrid_model/ARIMAX-MLPX-Parallel-func.R")
+  source("hybrid_model/ARIMAX-MLPX-Series-func.R")
+  
   set.seed(72)
 }
 
