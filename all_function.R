@@ -25,13 +25,13 @@ add_eidulfitr_regressor<-function(data){
   #%>%  %>% 
 }
 
-read_data<-function(kota,pecahan){
+read_data<-function(kota,pecahan,flow){
   library(gsheet)
   library(tidyverse)
-  file<-read.csv("Outflow_Refit.csv")
+  file<-read.csv("Data_Refit.csv")
   #url<-"https://drive.google.com/file/d/1WES1QCc0OHqZt9kiFkwRp2qx2RGxOA97/view?usp=sharing"
   #dataset<-gsheet2tbl(url) %>% filter(Kota == kota) %>% select(Kota,Tahun,Bulan,pecahan)
-  dataset<-file %>% filter(Kota == kota) %>% select(Kota,Tahun,Bulan,pecahan)
+  dataset<-file %>% filter(Kota == kota, Flow==flow) %>% select(Kota,Tahun,Bulan,pecahan)
   
   index<-dataset[,4]<=0.0000
   dataset[,4][index]<-NA
