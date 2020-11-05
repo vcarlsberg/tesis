@@ -1,4 +1,4 @@
-ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
+ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -7,7 +7,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
   dateexecuted<-Sys.time()
   id<-random_id()
   
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -105,7 +106,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
       weight1<-0.5
       weight2<-0.5
       
-      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+      compile<-rbind(compile,data.frame(Flow=flow,
+                                        Model="ARIMA-MLP-Parallel",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -132,7 +134,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         result_pred_weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
-        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+        compile<-rbind(compile,data.frame(Flow=flow,
+                                          Model="ARIMA-MLP-Parallel",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -159,7 +162,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
       weight1<-as.numeric(lm.model$coefficients[1])
       weight2<-as.numeric(lm.model$coefficients[2])
       
-      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+      compile<-rbind(compile,data.frame(Flow=flow,
+                                        Model="ARIMA-MLP-Parallel",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -186,7 +190,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
-        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+        compile<-rbind(compile,data.frame(Flow=flow,
+                                          Model="ARIMA-MLP-Parallel",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -223,7 +228,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
       weight1<-GA@solution[1]
       weight2<-GA@solution[2]
       
-      compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+      compile<-rbind(compile,data.frame(Flow=flow,
+                                        Model="ARIMA-MLP-Parallel",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -250,7 +256,8 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination)
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
-        compile<-rbind(compile,data.frame(Model="ARIMA-MLP-Parallel",
+        compile<-rbind(compile,data.frame(Flow=flow,
+                                          Model="ARIMA-MLP-Parallel",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,

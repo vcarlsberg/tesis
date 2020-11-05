@@ -1,5 +1,5 @@
 
-MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination)
+MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -9,7 +9,8 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination)
   dateexecuted<-Sys.time()
   
 
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -108,7 +109,8 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination)
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   
-  compile<-rbind(compile,data.frame(Model="MLPX-ARIMAX-Series",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="MLPX-ARIMAX-Series",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -137,7 +139,8 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination)
     colnames(result.pred)<-c("test_data","forecast")
     
     
-    compile<-rbind(compile,data.frame(Model="MLPX-ARIMAX-Series",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="MLPX-ARIMAX-Series",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
