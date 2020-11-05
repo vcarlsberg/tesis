@@ -22,17 +22,28 @@ for (location in c("Jakarta"))
   {
     for (preprocessing in c(1,0,-1))
     {
-      result<-ARIMA_Individual(preprocessing = preprocessing,
-                               location=location,
-                               denomination=denomination)
+      tryCatch({
+        print(paste(location,denomination,preprocessing,Sys.time(),"ARIMA"))
+        
+        result<-ARIMA_Individual(preprocessing = preprocessing,
+                                 location=location,
+                                 denomination=denomination)
+        compiled_result<-rbind(compiled_result,result$modelResult)
+      },error=function(e){
+        print(e)
+      })
       
-      compiled_result<-rbind(compiled_result,result)
-      
-      result<-ARIMAX_Individual(preprocessing = preprocessing,
-                                location=location,
-                                denomination=denomination)
-      
-      compiled_result<-rbind(compiled_result,result)
+      tryCatch({
+        print(paste(location,denomination,preprocessing,Sys.time(),"ARIMAX"))
+        
+        result<-ARIMA_Individual(preprocessing = preprocessing,
+                                 location=location,
+                                 denomination=denomination)
+        compiled_result<-rbind(compiled_result,result$modelResult)
+      },error=function(e){
+        print(e)
+      })
+
     }
   }
 }
@@ -147,7 +158,7 @@ for (location in c("Jakarta"))
 {
   for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
   {
-    for (preprocessing in c(1))
+    for (preprocessing in c(1,0))
     {
       for (MLP_layer in c(1,2))
       {
@@ -161,7 +172,7 @@ for (location in c("Jakarta"))
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
         },error=function(e){
-          print("Error")
+          print(e)
         })
       }
     }
@@ -172,7 +183,7 @@ for (location in c("Jakarta"))
 {
   for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
   {
-    for (preprocessing in c(1))
+    for (preprocessing in c(1,0))
     {
       for (MLP_layer in c(1,2))
       {
@@ -186,7 +197,7 @@ for (location in c("Jakarta"))
           compiled_result<-rbind(compiled_result,result$modelResult)
           nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
         },error=function(e){
-          print("Error")
+          print(e)
         })
       }
     }
@@ -195,9 +206,9 @@ for (location in c("Jakarta"))
 
 for (location in c("Jakarta"))
 {
-  for (denomination in c("K20000","K2000"))
+  for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
   {
-    for (preprocessing in c(1))
+    for (preprocessing in c(1,0))
     {
       for (MLP_layer in c(1,2))
       {
@@ -205,11 +216,11 @@ for (location in c("Jakarta"))
         tryCatch({
           print(paste(location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Series"))
           
-          result_dummy<-MLP_ARIMA_Series(preprocessing = preprocessing,
+          result<-MLP_ARIMA_Series(preprocessing = preprocessing,
                                      location=location,
                                      denomination=denomination,MLP_layer=MLP_layer)
-          result_dummy<-rbind(compiled_result,result$modelResult)
-          result_dummy<-rbind(nn_gridsearch_result,result$gridsearchNN)
+          compiled_result<-rbind(compiled_result,result$modelResult)
+          nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
         },error=function(e){
           print(e)
         })
@@ -222,7 +233,7 @@ for (location in c("Jakarta"))
 {
   for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
   {
-    for (preprocessing in c(1))
+    for (preprocessing in c(1,0))
     {
       for (MLP_layer in c(1,2))
       {
