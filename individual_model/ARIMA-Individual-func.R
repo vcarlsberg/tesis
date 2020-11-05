@@ -1,11 +1,12 @@
-ARIMA_Individual<-function(preprocessing,location,denomination)
+ARIMA_Individual<-function(preprocessing,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
   
   
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -25,7 +26,7 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
   id<-random_id()
   dateexecuted<-Sys.time()
   
-  flow_data<-read_data(location,denomination)
+  flow_data<-read_data(location,denomination,flow)
   flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                       frequency=12)
   
@@ -45,7 +46,8 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
 
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
-  compile<-rbind(compile,data.frame(Model="ARIMA-Individual",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="ARIMA-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -67,7 +69,8 @@ ARIMA_Individual<-function(preprocessing,location,denomination)
     
     colnames(result.pred)<-c("test_data","arima_fitted")
     
-    compile<-rbind(compile,data.frame(Model="ARIMA-Individual",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="ARIMA-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
