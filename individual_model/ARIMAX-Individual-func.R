@@ -1,10 +1,11 @@
-ARIMAX_Individual<-function(preprocessing,location,denomination)
+ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
   
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -49,7 +50,8 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
   
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
-  compile<-rbind(compile,data.frame(Model="ARIMAX-Individual",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="ARIMAX-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -72,7 +74,8 @@ ARIMAX_Individual<-function(preprocessing,location,denomination)
 
     colnames(result.pred)<-c("test_data","arima_fitted")
     
-    compile<-rbind(compile,data.frame(Model="ARIMAX-Individual",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="ARIMAX-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

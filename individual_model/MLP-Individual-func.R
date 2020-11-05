@@ -1,11 +1,12 @@
-MLP_Individual<-function(preprocessing,MLP_layer,location,denomination)
+MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
 {
   source("~/tesis/all_function.R")
   init_run()
   set.seed(72)
   
 
-    compile <- data.frame(ID=character(),
+    compile <- data.frame(Flow=character(),
+                          ID=character(),
                           DateExecuted=character(),
                           Model=character(),
                           InOutSample=character(),
@@ -88,7 +89,8 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination)
   nonlinearmodel.candidate<- if(MLP_layer==1) paste(sol$minlevels[1]) else paste(sol$minlevels[1],sol$minlevels[2],sep = "-")
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
-  compile<-rbind(compile,data.frame(Model="MLP-Individual",
+  compile<-rbind(compile,data.frame(Flow=flow,
+                                    Model="MLP-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -115,7 +117,8 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination)
     result.pred<-ts.intersect(test.data,mlp.mean)
     colnames(result.pred)<-c("train_data","mlp_fitted")
     
-    compile<-rbind(compile,data.frame(Model="MLP-Individual",
+    compile<-rbind(compile,data.frame(Flow=flow,
+                                      Model="MLP-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
