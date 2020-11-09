@@ -3,23 +3,62 @@ my_function<- function(x){
   
 }
 
-add_eidulfitr_regressor<-function(data){
+add_eidulfitr_regressor<-function(data,flow){
   library(prophet)
   holidays<-prophet::generated_holidays
   
   holidays<-holidays %>% filter(country=="ID" & holiday=="Eid al-Fitr")
-  holidays$bulan<-as.integer(format(as.Date(holidays$ds), "%m"))
-  holidays$tahun<-as.integer(format(as.Date(holidays$ds), "%Y"))
-  holidays<-holidays %>% select(-year)
-  names(holidays)<-c("ds","holiday","country","Bulan","Tahun")
   
-  add_1994<-data.frame("1994-03-14","Eid al-Fitr","ID",3,1994)
-  names(add_1994)<-c("ds","holiday","country","Bulan","Tahun")
-  holidays<-rbind(holidays, add_1994)
+  add_1994_2<-data.frame("1994-03-15","Eid al-Fitr","ID",1994)
+  add_1993_2<-data.frame("1993-03-26","Eid al-Fitr","ID",1993)
+  names(add_1994_2)<-c("ds","holiday","country","year")
+  names(add_1993_2)<-c("ds","holiday","country","year")
+  holidays<-rbind(holidays,add_1994_2)
+  holidays<-rbind(holidays,add_1993_2)
   
-  data<-data %>% left_join(holidays,copy = TRUE) 
-  data<-data %>% select(-c(holiday, country))
-  data<-data %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
+  holidays<-holidays[order(as.Date(holidays$ds)),]  
+  row.names(holidays)<-NULL
+  names(holidays)<-c("ds","holiday","country","year")
+  
+  
+  if(flow=="Outflow")
+  {
+    #tanggal_int<-as.integer(format(as.Date(holidays$ds), "%d"))
+    #tanggal_int<=10
+    #subtract<-if(tanggal_int<=15) -1 
+    holidays$bulan<-as.integer(format(as.Date(holidays$ds), "%m"))
+    holidays$tanggal<-as.integer(format(as.Date(holidays$ds), "%d"))
+    indices<-holidays$tanggal<=10
+    holidays$ds2<-as.Date(holidays$ds)
+    holidays$ds2[indices]<-holidays$ds2[indices]-30
+    holidays$year2<-as.integer(format(as.Date(holidays$ds2), "%Y"))
+    holidays$bulan2<-as.integer(format(as.Date(holidays$ds2), "%m"))
+    holidays$tanggal2<-as.integer(format(as.Date(holidays$ds2), "%d"))
+
+    holidays<-holidays %>% select(c(year2,bulan2,ds))
+    names(holidays)<-c("Tahun","Bulan","ds")
+  }else{
+    #tanggal_int<-as.integer(format(as.Date(holidays$ds), "%d"))
+    #tanggal_int<=10
+    #subtract<-if(tanggal_int<=15) -1 
+    holidays$bulan<-as.integer(format(as.Date(holidays$ds), "%m"))
+    holidays$tanggal<-as.integer(format(as.Date(holidays$ds), "%d"))
+    indices<-holidays$tanggal>=20
+    holidays$ds2<-as.Date(holidays$ds)
+    holidays$ds2[indices]<-holidays$ds2[indices]+30
+    holidays$year2<-as.integer(format(as.Date(holidays$ds2), "%Y"))
+    holidays$bulan2<-as.integer(format(as.Date(holidays$ds2), "%m"))
+    holidays$tanggal2<-as.integer(format(as.Date(holidays$ds2), "%d"))
+    
+    holidays<-holidays %>% select(c(year2,bulan2,ds))
+    names(holidays)<-c("Tahun","Bulan","ds")
+  }
+
+  
+
+  
+  data<-data %>% left_join(holidays,copy = TRUE) %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
+  #data<-data %>% mutate(ds=ifelse(is.na(ds),yes = 0,no=1))
   #colnames(data)[colnames(data) == 'ds'] <- 'eid'
   #data<-as_tibble(data) %>% rename(ds=eid)
   #%>%  %>% 
@@ -38,7 +77,7 @@ read_data<-function(kota,pecahan,flow){
   dataset<-dataset %>% na.trim()
   dataset[,4]<-na.approx(dataset[,4])
   dataset<-as.data.frame(dataset)
-  dataset<-add_eidulfitr_regressor(dataset)
+  dataset<-add_eidulfitr_regressor(dataset,flow)
   dataset<-dataset %>% select(-Kota)
   
   #dataset[,1]<-as.factor(dataset[,1])
