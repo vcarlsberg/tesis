@@ -20,7 +20,7 @@ mlp_gridsearch<-data.frame(HiddenNodes=numeric(),
                            InSampleMAPE=numeric(),
                            OutSampleRMSE=numeric(),
                            OutSampleMAPE=numeric()
-                           )
+)
 set.seed(72)
 for(nn in c(4))
 {
@@ -29,16 +29,20 @@ for(nn in c(4))
     mlp.model<-mlp(split_data(flow_data_xts,20)$train,
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
+                   xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
+                   xreg.lags=list(0),
+                   xreg.keep=list(c(rep(TRUE))),
                    reps = 1,
                    lags = 1:input,
                    sel.lag = FALSE)
     
-    mlp.frc<-forecast(mlp.model,h=47)$mean
+    mlp.frc<-forecast(mlp.model,h=47,
+                      xreg = as.data.frame(flow_data_xts_xreg))
     
     intersect.datatrain.mlpfit<-ts.intersect(split_data(flow_data_xts,20)$train,
-                                            mlp.model$fitted)
+                                             mlp.model$fitted)
     intersect.datatest.mlppred<-ts.intersect(split_data(flow_data_xts,20)$test,
-                                             mlp.frc)
+                                             mlp.frc$mean)
     
     
     
@@ -48,19 +52,13 @@ for(nn in c(4))
                           InSampleMAPE=TSrepr::mape(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2]),
                           OutSampleRMSE=TSrepr::rmse(intersect.datatest.mlppred[,1],intersect.datatest.mlppred[,2]),
                           OutSampleMAPE=TSrepr::mape(intersect.datatest.mlppred[,1],intersect.datatest.mlppred[,2])
-                          )
+    )
     
     mlp_gridsearch<-rbind(mlp_gridsearch,result.df)
   }
 }
 
-which(mlp_gridsearch ==min(mlp_gridsearch), 
-      arr.ind = TRUE)
-
 plot(mlp_gridsearch)
-
-#melt_mlp_gridsearch<-melt(mlp_gridsearch)
-#colnames(melt_mlp_gridsearch)<-c("HiddenNodes","InputNodes","Error")
 
 mlp_gridsearch %>% filter(InputNodes==c(1,10,15,20))%>%
   ggplot( aes(x = HiddenNodes, y = (OutSampleRMSE)/1000,
@@ -71,30 +69,39 @@ mlp_gridsearch %>% filter(InputNodes==c(1,10,15,20))%>%
                      labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
   labs(color = "InputNodes")+
   theme(text = element_text(size=14))
-  
-  
 
 
-mlp.model<-mlp(split_data(flow_data_xts,20)$train,
-               hd=c(20),
+
+
+ffnnx.model<-mlp(split_data(flow_data_xts,20)$train,
+               hd=c(4),
                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                reps = 1,
-               lags = 1:20,sel.lag = FALSE)
-fit_ffnn<-fitted(mlp.model)
-frc_ffnn<-forecast(mlp.model,h=47)$mean
-fit_frc_ffnn<-ts(c(fit_ffnn,frc_ffnn),
+               lags = 1:15,
+               sel.lag = FALSE,
+               xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
+               xreg.lags=list(0),
+               xreg.keep=list(c(rep(TRUE))),
+               )
+fit_ffnnx<-fitted(ffnnx.model)
+frc_ffnnx<-forecast(ffnnx.model,h=47,
+                   xreg = as.data.frame(flow_data_xts_xreg))$mean
+fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
                  start=c(2001, 2), 
                  end=c(2019, 6),frequency = 12)
 
-checkresiduals(flow_data_xts-mlp.model$fitted)
+plot(ffnnx.model$net)
+ffnnx.model$net$result.matrix %>% View()
+
+checkresiduals(flow_data_xts-ffnnx.model$fitted)
 
 Box.test(flow_data_xts-mlp.model$fitted,lag = 30)
 
 
-compile_ffnn<-ts.intersect(flow_data_xts,fit_frc_ffnn) %>% 
+compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx) %>% 
   data.frame() %>% 
   cbind(date=index(fit_frc_ffnn)%>%yearmon()) %>%
-  rename(Outflow=flow_data_xts,Predicted=fit_frc_ffnn)%>%
+  rename(Outflow=flow_data_xts,Predicted=fit_frc_ffnnx)%>%
   mutate(Outflow=Outflow/1000,Predicted=Predicted/1000)%>%
   gather(key="variable",value="value",-date)%>%
   ggplot( aes(x = date, y = value))+theme_minimal()+
@@ -110,28 +117,24 @@ compile_ffnn<-ts.intersect(flow_data_xts,fit_frc_ffnn) %>%
   xlab("Bulan-Tahun")+
   theme(text = element_text(size=14))
 
-compile_ffnn
-
-
-plot(mlp.model)
-View(mlp.model$net$result.matrix)
-forecast(mlp.model,h=47)
 
 df.mape.oos<-data.frame(fh=numeric(),
                         mape=numeric())
 
 for(h in c(1:24))
 {
-  intersect_data<-ts.intersect(forecast(mlp.model,h = h)$mean,
+  intersect_data<-ts.intersect(forecast(ffnnx.model,h=h,
+                                        xreg = as.data.frame(flow_data_xts_xreg))$mean,
                                split_data(flow_data_xts,20)$test[1:h])
-                               
+  
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],
                                                               intersect_data[,1])
-                                            )
+  )
   )
 }
 
 df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
 
