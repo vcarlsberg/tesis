@@ -18,7 +18,8 @@ arimax_indiv<-Arima(split_data(flow_data_xts,20)$train,
 lmtest::coeftest(arimax_indiv)
 summary(arimax_indiv)
 fit_arimax<-fitted(arimax_indiv)
-frc_arimax<-forecast(arimax_indiv,xreg = split_data(flow_data_xts_xreg,20)$test)$mean
+frc_arimax<-forecast(arimax_indiv,
+                     xreg = split_data(flow_data_xts_xreg,20)$test)$mean
 fit_frc_arimax<-ts(c(fit_arimax,frc_arimax),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
 
 frc.arimax_indiv<-forecast(arimax_indiv,
