@@ -72,7 +72,7 @@ mlp_gridsearch %>% filter(InputNodes==c(1,10,15,20))%>%
 
 
 
-
+set.seed(72)
 ffnnx.model<-mlp(split_data(flow_data_xts,20)$train,
                hd=c(4),
                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
@@ -116,7 +116,7 @@ compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx) %>%
   annotate("text", x = 2004, y = 25000, label = "In-Sample")+
   xlab("Bulan-Tahun")+
   theme(text = element_text(size=14))
-
+compile_ffnnx
 
 df.mape.oos<-data.frame(fh=numeric(),
                         mape=numeric())
