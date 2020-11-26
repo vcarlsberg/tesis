@@ -16,7 +16,6 @@ flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), 
 
 dlnnx_gridsearch<-data.frame(HiddenNodes1=numeric(),
                             HiddenNodes2=numeric(),
-                            InputNodes=numeric(),
                             InSampleRMSE=numeric(),
                             InSampleMAPE=numeric(),
                             OutSampleRMSE=numeric(),
@@ -26,22 +25,24 @@ dlnnx_gridsearch<-data.frame(HiddenNodes1=numeric(),
 set.seed(72)
 
 # Gridsearch tiap input node, layer1 & llayer 2 node
-for(nn1 in c(10))
+for(nn1 in c(1))
 {
-  for(nn2 in c(12))
+  for(nn2 in c(14))
   {
-    for(input in c(2))
-    {
-      print(paste(nn1,nn2,input))
+      print(paste(nn1,nn2))
       tryCatch({
         dlnnx.model<-mlp(split_data(flow_data_xts,20)$train,
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = 1:input,
-                        sel.lag = FALSE)
+                        lags = c(1,12,13,23,24,25,35,36,48,49),
+                        sel.lag = FALSE,
+                        xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
+                        xreg.lags=list(0,0,0,0,0,0,0,0),
+                        xreg.keep=list(T,T,T,T,T,T,T,T))
         
-        dlnnx.frc<-forecast(dlnn.model,h=47)$mean
+        dlnnx.frc<-forecast(dlnnx.model,h=47,
+                            xreg = as.data.frame(flow_data_xts_xreg))$mean
         
         intersect.datatrain.dlnnxfit<-ts.intersect(split_data(flow_data_xts,20)$train,
                                                   dlnnx.model$fitted)
@@ -50,7 +51,6 @@ for(nn1 in c(10))
         
         result.df<-data.frame(HiddenNodes1=nn1,
                               HiddenNodes2=nn2,
-                              InputNodes=input,
                               InSampleRMSE=TSrepr::rmse(intersect.datatrain.dlnnxfit[,1],intersect.datatrain.dlnnxfit[,2]),
                               InSampleMAPE=TSrepr::mape(intersect.datatrain.dlnnxfit[,1],intersect.datatrain.dlnnxfit[,2]),
                               OutSampleRMSE=TSrepr::rmse(intersect.datatest.dlnnxpred[,1],intersect.datatest.dlnnxpred[,2]),
@@ -64,18 +64,11 @@ for(nn1 in c(10))
       
       
       
-    }
+    
   }
 }
 
-#Grafik per node per nn1 & nn2
-ggg<-dlnn_gridsearch %>% select(HiddenNodes1,HiddenNodes2,InputNodes)
 
-
-ggg %>% group_by(InputNodes)  %>% 
-  summarise(
-    MaxMassByGender = min(InSampleRMSE, na.rm = T)
-  ) %>% arrange(InputNodes)
 
 dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
   filter(InputNodes==c(20) & HiddenNodes2 %in% c(1,5,9,10,15,17,18,20) )%>%
@@ -95,22 +88,50 @@ dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
 #extract weight
 set.seed(72)
 dlnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(10,12),
+                 hd=c(1,14),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
-                 lags = 1:2,
+                 lags = c(1,12,13,23,24,25,35,36,48,49),
                  sel.lag = FALSE,
                  xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-                 xreg.lags=list(0),
-                 xreg.keep=list(c(rep(TRUE))),
+                 xreg.lags=c(0,0,0,0,0,0,0,0),
+                 xreg.keep=c(T,T,T,T,T,T,T,T),
 )
 
+plot(dlnnx.model$net)
 fit_dlnnx<-fitted(dlnnx.model)
 frc_dlnnx<-forecast(dlnnx.model,h=47,
                     xreg = as.data.frame(flow_data_xts_xreg))$mean
 fit_frc_dlnnx<-ts(c(fit_dlnnx,frc_dlnnx),
-                  start=c(2000, 1), 
+                  start=c(2003, 12), 
                   end=c(2019, 6),frequency = 12)
+
+TSrepr::mape(ts.intersect(flow_data_xts,fit_dlnnx)[,1],ts.intersect(flow_data_xts,fit_dlnnx)[,2])
+TSrepr::rmse(ts.intersect(flow_data_xts,fit_dlnnx)[,1],ts.intersect(flow_data_xts,fit_dlnnx)[,2])
+TSrepr::mape(ts.intersect(flow_data_xts,frc_dlnnx)[,1],ts.intersect(flow_data_xts,frc_dlnnx)[,2])
+TSrepr::rmse(ts.intersect(flow_data_xts,frc_dlnnx)[,1],ts.intersect(flow_data_xts,frc_dlnnx)[,2])
+
+
+#plot ts & fitted value & forecast
+ts.intersect(flow_data_xts,fit_frc_dlnnx) %>% 
+  data.frame() %>% 
+  cbind(date=index(fit_frc_dlnnx)%>%yearmon()) %>%
+  rename(Outflow=flow_data_xts,Predicted=fit_frc_dlnnx)%>%
+  mutate(Outflow=Outflow/1000,
+         Predicted=Predicted/1000)%>%
+  gather(key="variable",value="value",-date)%>%
+  ggplot( aes(x = date, y = value))+theme_minimal()+
+  geom_line(aes(color = variable), size = 0.75)+
+  geom_rect(fill="grey",xmin=2015.6666,xmax=Inf,ymin=-Inf,ymax=Inf,alpha=0.01)+
+  scale_x_yearmon(format="%b-%Y",breaks=pretty_breaks(20))+
+  theme(legend.position="bottom")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust=1))+
+  scale_y_continuous(name="Nilai Outflow \n (milyar Rp)",
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  annotate("text", x = 2018, y = 25000, label = "Out-of-Sample")+
+  annotate("text", x = 2005, y = 25000, label = "In-Sample")+
+  xlab("Bulan-Tahun")+
+  theme(text = element_text(size=14))
 
 #plot ts & fitted value & forecast
 ts.intersect(flow_data_xts,fit_frc_dlnnx,fit_frc_dlnn) %>% 
@@ -158,9 +179,19 @@ for(h in c(1:24))
   )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal(base_size=16)+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
+
 
 #plot insample, outsample data, fitted & forecast data
 fit_dlnn<-fitted(dlnn.model)

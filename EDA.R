@@ -212,8 +212,11 @@ p3<-(as.xts(flow_data_xts)['2014']/1000) %>% autoplot() + labs(x="Tahun",y="Nila
 p4<-(as.xts(flow_data_xts)['2015']/1000) %>% autoplot() + labs(x="Tahun",y="Nilai (dalam \n milyar \n Rupiah)",title="Outflow Jakarta K100000 (th 2015)")+
   geom_vline(xintercept = seq(from=2015, to=(2016-1/12), by=1/12),color="grey")+
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE))
+p5<-(as.xts(flow_data_xts)['2016']/1000) %>% autoplot() + labs(x="Tahun",y="Nilai (dalam \n milyar \n Rupiah)",title="Outflow Jakarta K100000 (th 2016)")+
+  geom_vline(xintercept = seq(from=2016, to=(2017-1/12), by=1/12),color="grey")+
+  scale_y_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE))
 
-grid.arrange(pa,p0,p1,p2,p3,p4,ncol=2)
+grid.arrange(p0,p1,p2,p3,p4,p5)
 
 (as.xts(flow_data_xts)['2004']/1000) %>% autoplot() + labs(x="Tahun",y="Nilai",title="Outflow Jakarta K100000 (th 2015)")+
   geom_vline(xintercept = seq(from=2004, to=(2005-1/12), by=1/12),color="grey")+
