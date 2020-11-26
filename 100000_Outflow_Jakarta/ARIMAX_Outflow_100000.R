@@ -8,26 +8,32 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
 
 arimax_indiv<-Arima(split_data(flow_data_xts,20)$train,
                    xreg = split_data(flow_data_xts_xreg,20)$train,
-                   order=c(0,1,2),seasonal = c(1,0,0))
+                   order=c(0,1,0),seasonal = c(2,1,2))
+arimax_indiv$aic
 lmtest::coeftest(arimax_indiv)
 summary(arimax_indiv)
 fit_arimax<-fitted(arimax_indiv)
 frc_arimax<-forecast(arimax_indiv,
                      xreg = split_data(flow_data_xts_xreg,20)$test)$mean
-fit_frc_arimax<-ts(c(fit_arimax,frc_arimax),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
+fit_frc_arimax<-ts(c(fit_arimax,frc_arimax),
+                   start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
 
 frc.arimax_indiv<-forecast(arimax_indiv,
                            xreg = split_data(flow_data_xts_xreg,20)$test)
+
+TSrepr::mape(split_data(flow_data_xts,20)$train,fit_arimax)
+TSrepr::rmse(split_data(flow_data_xts,20)$train,fit_arimax)
 TSrepr::mape(split_data(flow_data_xts,20)$test,frc.arimax_indiv$mean)
 TSrepr::rmse(split_data(flow_data_xts,20)$test,frc.arimax_indiv$mean)
 
-Box.test(residuals(arimax_indiv),lag = 30)
+residual_arimax_indiv<-split_data(flow_data_xts,20)$train-arimax_indiv$fitted
+Box.test(residual_arimax_indiv,lag = 30)
 
 compile_arimax<-cbind(flow_data_xts %>% as.data.frame(),
                fit_frc_arimax%>% as.data.frame(),
@@ -58,14 +64,29 @@ df.mape.oos<-data.frame(fh=numeric(),
 
 for(h in c(1:24))
 {
-  intersect_data<-ts.intersect(forecast(arimax_indiv,
-                                        xreg = split_data(flow_data_xts_xreg,20)$test[1:h])$mean,
-                               split_data(flow_data_xts,20)$test[1:h])
+  intersect_data<-ts.intersect(
+                              forecast(arimax_indiv,
+                                      xreg = split_data(flow_data_xts_xreg,20)$test)$mean,
+                              split_data(flow_data_xts,20)$test
+                              )
+  #print(intersect_data)
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
-                                            mape=TSrepr::mape(intersect_data[,1],
-                                                              intersect_data[,2]))
+                                            mape=TSrepr::mape(intersect_data[1:h,2],
+                                                              intersect_data[1:h,1]))
   )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal()+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(text = element_text(size=16))+ theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
+
+terasvirta.test(flow_data_xts)
