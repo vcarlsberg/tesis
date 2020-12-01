@@ -90,11 +90,20 @@ fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
                  start=c(2003, 12), 
                  end=c(2019, 6),frequency = 12)
 
-intesect_train<-ts.intersect(flow_data_xts,fit_ffnnx)
-TSrepr::mape(ts.intersect(flow_data_xts,fit_ffnnx)[,1],ts.intersect(flow_data_xts,fit_ffnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,fit_ffnnx)[,1],ts.intersect(flow_data_xts,fit_ffnnx)[,2])
-TSrepr::mape(ts.intersect(flow_data_xts,frc_ffnnx)[,1],ts.intersect(flow_data_xts,frc_ffnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,frc_ffnnx)[,1],ts.intersect(flow_data_xts,frc_ffnnx)[,2])
+plot(ffnnx.model$net)
+
+intersect.datatrain.ffnnxfit<-ts.intersect(split_data(flow_data_xts,20)$train,
+                                           ffnnx.model$fitted)
+intersect.datatest.ffnnxpred<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                         forecast(ffnnx.model,
+                                                  h=47,
+                                                  xreg = as.data.frame(flow_data_xts_xreg))$mean)
+
+TSrepr::rmse(intersect.datatrain.ffnnxfit[,1],intersect.datatrain.ffnnxfit[,2])
+TSrepr::mape(intersect.datatrain.ffnnxfit[,1],intersect.datatrain.ffnnxfit[,2])
+TSrepr::rmse(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
+TSrepr::mape(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
+
 
 plot(ffnnx.model$net)
 ffnnx.model$net$result.matrix %>% View()
@@ -159,7 +168,16 @@ for(h in c(1:24))
   )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))+
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal(base_size=16)+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
 

@@ -8,7 +8,7 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,5:8],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
 data_m<-flow_data %>% mutate(date = (as.yearmon(make_date(Tahun, Bulan))))%>%
@@ -131,14 +131,13 @@ df.mape.oos %>% mutate(predicate=case_when(
   mape>=10 & mape<=20 ~ "Baik",
   mape>20 & mape<=50 ~ "Cukup",
   mape>50  ~ "Tidak Akurat"
-))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_line(size=1) +
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
   theme_minimal()+
   xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
   theme(text = element_text(size=16))+ theme(legend.position = "top")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
   labs(color='Predikat Akurasi Peramalan') 
-  
 
   
   

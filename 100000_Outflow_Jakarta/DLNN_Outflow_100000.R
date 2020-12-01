@@ -16,7 +16,6 @@ flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), 
 
 dlnn_gridsearch<-data.frame(HiddenNodes1=numeric(),
                            HiddenNodes2=numeric(),
-                           InputNodes=numeric(),
                            InSampleRMSE=numeric(),
                            InSampleMAPE=numeric(),
                            OutSampleRMSE=numeric(),
@@ -26,19 +25,17 @@ dlnn_gridsearch<-data.frame(HiddenNodes1=numeric(),
 set.seed(72)
 
 # Gridsearch tiap input node, layer1 & llayer 2 node
-for(nn1 in c(1:20))
+for(nn1 in c(1))
 {
-  for(nn2 in c(1:20))
+  for(nn2 in c(14))
   {
-    for(input in c(1:20))
-    {
-      print(paste(nn1,nn2,input))
+      print(paste(nn1,nn2))
       tryCatch({
         dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = 1:input,
+                        lags = c(1,12,13,23,24,25,35,36,48,49),
                         sel.lag = FALSE)
         
         dlnn.frc<-forecast(dlnn.model,h=47)$mean
@@ -50,7 +47,6 @@ for(nn1 in c(1:20))
         
         result.df<-data.frame(HiddenNodes1=nn1,
                               HiddenNodes2=nn2,
-                              InputNodes=input,
                               InSampleRMSE=TSrepr::rmse(intersect.datatrain.dlnnfit[,1],intersect.datatrain.dlnnfit[,2]),
                               InSampleMAPE=TSrepr::mape(intersect.datatrain.dlnnfit[,1],intersect.datatrain.dlnnfit[,2]),
                               OutSampleRMSE=TSrepr::rmse(intersect.datatest.dlnnpred[,1],intersect.datatest.dlnnpred[,2]),
@@ -64,41 +60,51 @@ for(nn1 in c(1:20))
       
       
       
-    }
+    
   }
 }
 
-#Grafik per node per nn1 & nn2
-ggg<-dlnn_gridsearch %>% select(HiddenNodes1,HiddenNodes2,InputNodes)
+dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
+                hd=c(1,14),
+                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
+                reps = 1,
+                lags = c(1,12,13,23,24,25,35,36,48,49),
+                sel.lag = FALSE)
+dlnn.model$MSE
+
+#plot insample, outsample data, fitted & forecast data
+set.seed(72)
+fit_dlnn<-fitted(dlnn.model)
+frc_dlnn<-forecast(dlnn.model,h=47)$mean
+fit_frc_dlnn<-ts(c(fit_dlnn,frc_dlnn),
+                 start=c(2003, 12), 
+                 end=c(2019, 6),frequency = 12)
 
 
-ggg %>% group_by(InputNodes)  %>% 
-  summarise(
-  MaxMassByGender = min(InSampleRMSE, na.rm = T)
-) %>% arrange(InputNodes)
+TSrepr::mape(ts.intersect(flow_data_xts,fit_dlnn)[,1],ts.intersect(flow_data_xts,fit_dlnn)[,2])
+TSrepr::rmse(ts.intersect(flow_data_xts,fit_dlnn)[,1],ts.intersect(flow_data_xts,fit_dlnn)[,2])
+TSrepr::mape(ts.intersect(flow_data_xts,frc_dlnn)[,1],ts.intersect(flow_data_xts,frc_dlnn)[,2])
+TSrepr::rmse(ts.intersect(flow_data_xts,frc_dlnn)[,1],ts.intersect(flow_data_xts,frc_dlnn)[,2])
+
+
 
 dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
-  filter(InputNodes==c(20) & HiddenNodes2 %in% c(1,5,9,10,15,17,18,20) )%>%
-  ggplot( aes(x = HiddenNodes1, y = (InSampleRMSE)/1000,
+  filter(HiddenNodes2 %in% c(1,5,10,14,16,19) )%>%
+  ggplot( aes(x = HiddenNodes1, y = (OutSampleRMSE)/1000,
               group=as.factor(HiddenNodes2),
               col=as.factor(HiddenNodes2)))+
-  geom_line(size = 1)+
+  geom_line(size = 1.5)+
   labs(color = "HiddenNodes2")+
-  theme(text = element_text(size=14))+
+  theme_minimal(base_size=18)+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   theme(legend.position="bottom")+
-  scale_y_continuous(name="Nilai In-Sample RMSE \n(milyar Rp)",
+  scale_y_continuous(name="Nilai Out-Sample RMSE \n(milyar Rp)",
                      labels=function(x) format(x, big.mark = ".", scientific = FALSE))
 
 
-#extract weight
-dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
-                hd=c(10,12),
-                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
-                reps = 1,
-                lags = 1:2,
-                sel.lag = FALSE)
+
+
 
 plot(dlnn.model$net)
 write_csv(as.data.frame(dlnn.model$net$result.matrix),"dlnn.model$net$result.matrix.csv")
@@ -112,7 +118,9 @@ df.mape.oos<-data.frame(fh=numeric(),
 
 for(h in c(1:24))
 {
-  intersect_data<-ts.intersect(forecast(dlnn.model,h = h)$mean,
+  dlnn.frc<-forecast(dlnn.model,h=h)$mean
+  
+  intersect_data<-ts.intersect(dlnn.frc,
                                split_data(flow_data_xts,20)$test[1:h])
   
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
@@ -122,16 +130,21 @@ for(h in c(1:24))
   )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal(base_size=16)+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
 
-#plot insample, outsample data, fitted & forecast data
-set.seed(72)
-fit_dlnn<-fitted(dlnn.model)
-frc_dlnn<-forecast(dlnn.model,h=47)$mean
-fit_frc_dlnn<-ts(c(fit_dlnn,frc_dlnn),
-                 start=c(2000, 1), 
-                 end=c(2019, 6),frequency = 12)
+
+
 
 ts.intersect(flow_data_xts,fit_frc_dlnn) %>% 
   data.frame() %>% 

@@ -23,11 +23,12 @@ mlp_gridsearch<-data.frame(HiddenNodes=numeric(),
 set.seed(72)
 for(nn in c(1:20))
 {
+  print(nn)
     mlp.model<-mlp(split_data(flow_data_xts,20)$train,
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                    reps = 1,
-                   lags = c(1,12,23,48),
+                   lags = c(1,12,13,23,24,25,35,36,48,49),
                    sel.lag = FALSE)
     
     mlp.frc<-forecast(mlp.model,h=47)$mean
@@ -66,25 +67,32 @@ mlp_gridsearch %>%
                      breaks = scales::pretty_breaks(n = 10))
   
   
-
-for (a in c(1))
-{
-  mlp.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(a),
+set.seed(72)
+mlp.model<-mlp(split_data(flow_data_xts,20)$train,
+                 hd=c(1),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
                  lags = c(1,12,13,23,24,25,35,36,48,49),
                  sel.lag = FALSE)
-  print(mlp.model$MSE)
-}
 
-plot(mlp.model)
 
 fit_ffnn<-fitted(mlp.model)
 frc_ffnn<-forecast(mlp.model,h=47)$mean
 fit_frc_ffnn<-ts(c(fit_ffnn,frc_ffnn),
                  start=c(2003, 12), 
                  end=c(2019, 6),frequency = 12)
+
+
+intersect.datatrain.mlpfit<-ts.intersect(split_data(flow_data_xts,20)$train,
+                                         mlp.model$fitted)
+intersect.datatest.mlppred<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                         forecast(mlp.model,h=47)$mean)
+
+TSrepr::rmse(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2])
+TSrepr::mape(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2])
+TSrepr::rmse(intersect.datatest.mlppred[,1],intersect.datatest.mlppred[,2])
+TSrepr::mape(intersect.datatest.mlppred[,1],intersect.datatest.mlppred[,2])
+
 
 checkresiduals(flow_data_xts-mlp.model$fitted)
 
