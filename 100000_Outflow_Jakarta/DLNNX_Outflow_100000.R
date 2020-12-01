@@ -106,10 +106,17 @@ fit_frc_dlnnx<-ts(c(fit_dlnnx,frc_dlnnx),
                   start=c(2003, 12), 
                   end=c(2019, 6),frequency = 12)
 
-TSrepr::mape(ts.intersect(flow_data_xts,fit_dlnnx)[,1],ts.intersect(flow_data_xts,fit_dlnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,fit_dlnnx)[,1],ts.intersect(flow_data_xts,fit_dlnnx)[,2])
-TSrepr::mape(ts.intersect(flow_data_xts,frc_dlnnx)[,1],ts.intersect(flow_data_xts,frc_dlnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,frc_dlnnx)[,1],ts.intersect(flow_data_xts,frc_dlnnx)[,2])
+intersect.datatrain.dlnnxfit<-ts.intersect(split_data(flow_data_xts,20)$train,
+                                           dlnnx.model$fitted)
+intersect.datatest.dlnnxpred<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                           forecast(dlnnx.model,
+                                                    h=47,
+                                                    xreg = as.data.frame(flow_data_xts_xreg))$mean)
+
+TSrepr::rmse(intersect.datatrain.dlnnxfit[,1],intersect.datatrain.dlnnxfit[,2])
+TSrepr::mape(intersect.datatrain.dlnnxfit[,1],intersect.datatrain.dlnnxfit[,2])
+TSrepr::rmse(intersect.datatest.dlnnxpred[,1],intersect.datatest.dlnnxpred[,2])
+TSrepr::mape(intersect.datatest.dlnnxpred[,1],intersect.datatest.dlnnxpred[,2])
 
 
 #plot ts & fitted value & forecast

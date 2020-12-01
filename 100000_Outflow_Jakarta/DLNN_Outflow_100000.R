@@ -118,7 +118,9 @@ df.mape.oos<-data.frame(fh=numeric(),
 
 for(h in c(1:24))
 {
-  intersect_data<-ts.intersect(forecast(dlnn.model,h = h)$mean,
+  dlnn.frc<-forecast(dlnn.model,h=h)$mean
+  
+  intersect_data<-ts.intersect(dlnn.frc,
                                split_data(flow_data_xts,20)$test[1:h])
   
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,

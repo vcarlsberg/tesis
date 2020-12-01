@@ -92,11 +92,18 @@ fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
 
 plot(ffnnx.model$net)
 
-intesect_train<-ts.intersect(flow_data_xts,fit_ffnnx)
-TSrepr::mape(ts.intersect(flow_data_xts,fit_ffnnx)[,1],ts.intersect(flow_data_xts,fit_ffnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,fit_ffnnx)[,1],ts.intersect(flow_data_xts,fit_ffnnx)[,2])
-TSrepr::mape(ts.intersect(flow_data_xts,frc_ffnnx)[,1],ts.intersect(flow_data_xts,frc_ffnnx)[,2])
-TSrepr::rmse(ts.intersect(flow_data_xts,frc_ffnnx)[,1],ts.intersect(flow_data_xts,frc_ffnnx)[,2])
+intersect.datatrain.ffnnxfit<-ts.intersect(split_data(flow_data_xts,20)$train,
+                                           ffnnx.model$fitted)
+intersect.datatest.ffnnxpred<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                         forecast(ffnnx.model,
+                                                  h=47,
+                                                  xreg = as.data.frame(flow_data_xts_xreg))$mean)
+
+TSrepr::rmse(intersect.datatrain.ffnnxfit[,1],intersect.datatrain.ffnnxfit[,2])
+TSrepr::mape(intersect.datatrain.ffnnxfit[,1],intersect.datatrain.ffnnxfit[,2])
+TSrepr::rmse(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
+TSrepr::mape(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
+
 
 plot(ffnnx.model$net)
 ffnnx.model$net$result.matrix %>% View()
