@@ -79,7 +79,7 @@ arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
 lmtest::coeftest(arima_indiv)
 
 residual_arima_indiv<-split_data(flow_data_xts,20)$train-arima_indiv$fitted
-Box.test(residual_arima_indiv,lag=30)
+Box.test(residual_arima_indiv,lag=30,type = "Ljung-Box")
 mean(residual_arima_indiv)
 
 fit_arima<-fitted(arima_indiv)
