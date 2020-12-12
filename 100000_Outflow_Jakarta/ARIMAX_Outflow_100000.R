@@ -8,14 +8,14 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
-                    frequency=12)
+flow_data_xts_xreg <- ts(flow_data[,c(4:22,24)],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+                         frequency=12)
 
 
 arimax_indiv<-Arima(split_data(flow_data_xts,20)$train,
-                   xreg = split_data(flow_data_xts_xreg,20)$train,
-                   order=c(0,1,0),seasonal = c(2,1,2))
-arimax_indiv$aic
+                    xreg = split_data(flow_data_xts_xreg,20)$train,
+                    order=c(5,0,0),seasonal = c(0,0,2))
+arimax_indiv$aicc
 lmtest::coeftest(arimax_indiv)
 summary(arimax_indiv)
 fit_arimax<-fitted(arimax_indiv)
@@ -36,9 +36,9 @@ residual_arimax_indiv<-split_data(flow_data_xts,20)$train-arimax_indiv$fitted
 Box.test(residual_arimax_indiv,lag = 30)
 
 compile_arimax<-cbind(flow_data_xts %>% as.data.frame(),
-               fit_frc_arimax%>% as.data.frame(),
-               flow_data_xts %>%time() %>% as.yearmon(),
-               c(rep(0,189),rep(1,47))
+                      fit_frc_arimax%>% as.data.frame(),
+                      flow_data_xts %>%time() %>% as.yearmon(),
+                      c(rep(0,189),rep(1,47))
 )
 colnames(compile_arimax)<-c("Outflow","Predicted","date","dum")
 
@@ -58,17 +58,17 @@ compile %>% mutate(Outflow=Outflow/1000,Predicted=Predicted/1000)%>%select(-dum)
   xlab("Bulan-Tahun")+
   theme(text = element_text(size=14))
 
-  
+
 df.mape.oos<-data.frame(fh=numeric(),
                         mape=numeric())
 
 for(h in c(1:24))
 {
   intersect_data<-ts.intersect(
-                              forecast(arimax_indiv,
-                                      xreg = split_data(flow_data_xts_xreg,20)$test)$mean,
-                              split_data(flow_data_xts,20)$test
-                              )
+    forecast(arimax_indiv,
+             xreg = split_data(flow_data_xts_xreg,20)$test)$mean,
+    split_data(flow_data_xts,20)$test
+  )
   #print(intersect_data)
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[1:h,2],
