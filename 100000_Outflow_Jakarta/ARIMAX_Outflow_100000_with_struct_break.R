@@ -26,51 +26,9 @@ flow_data_xts_xreg<-ts.union(flow_data_xts_xreg,d1_xreg,d2_xreg) %>%
   ts(start=c(1999,11),end = c(2019,6),frequency = 12) %>% 
   `colnames<-`(c(cname,"time_d1","time_d2"))
 
-flow_data_xts_xreg[,-c(20)]
+flow_data_xts_xreg %>% View()
 
 
-for(p in c(0:2)){
-  for(q in c(0:2)){
-    for(P in c(0:2)){
-      for(Q in c(0:2)){
-        tryCatch({
-          
-          
-          arimax_indiv<-Arima(split_data(flow_data_xts,20)$train,
-                              xreg = split_data(flow_data_xts_xreg[,-c(20)],20)$train,
-                              order = c(p,0,q),seasonal = c(P,0,Q)
-          )
-          
-          
-          
-          #lmtest::coeftest(arimax_indiv)
-          #summary(arimax_indiv)
-          fit_arimax<-fitted(arimax_indiv)
-          frc_arimax<-forecast(arimax_indiv,
-                               xreg = split_data(flow_data_xts_xreg[,-c(20)],20)$test)$mean
-          fit_frc_arimax<-ts(c(fit_arimax,frc_arimax),
-                             start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
-          
-          frc.arimax_indiv<-forecast(arimax_indiv,
-                                     xreg = split_data(flow_data_xts_xreg[,-c(20)],20)$test)
-          
-          arimax_grid_search<-rbind(arimax_grid_search,data.frame(
-            Model=as.character(arimax_indiv),
-            MAPE_In_Sample=TSrepr::mape(split_data(flow_data_xts,20)$train,fit_arimax),
-            RMSE_In_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$train,fit_arimax),
-            MAPE_Out_Sample=TSrepr::mape(split_data(flow_data_xts,20)$test,frc.arimax_indiv$mean),
-            RMSE_Out_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$test,frc.arimax_indiv$mean),
-            AICC=arimax_indiv$aicc,
-            SB=2
-          ))
-          
-        },error=function(e){
-          
-        })
-      }
-    }
-  }
-}
 
 
 

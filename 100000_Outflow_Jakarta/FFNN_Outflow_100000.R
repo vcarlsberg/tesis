@@ -28,7 +28,7 @@ for(nn in c(1:20))
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                    reps = 1,
-                   lags = c(1,12,13,23,24,25,35,36,48,49),
+                   lags = c(1,12,13,24,25,36,37),
                    sel.lag = FALSE)
     
     mlp.frc<-forecast(mlp.model,h=47)$mean
@@ -51,14 +51,14 @@ for(nn in c(1:20))
 }
 
 
-plot(mlp_gridsearch)
+#plot(mlp_gridsearch)
 
 #melt_mlp_gridsearch<-melt(mlp_gridsearch)
 #colnames(melt_mlp_gridsearch)<-c("HiddenNodes","InputNodes","Error")
 
 mlp_gridsearch %>%
   ggplot( aes(x = HiddenNodes, y = (OutSampleRMSE)/1000))+
-  geom_line(size = 1)+
+  geom_line(size = 0.5)+
   theme(text = element_text(size=18))+theme_minimal(base_size=16)+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
   ylab('Out-of-Sample RMSE (milyar Rp)')+
@@ -72,14 +72,14 @@ mlp.model<-mlp(split_data(flow_data_xts,20)$train,
                  hd=c(1),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
-                 lags = c(1,12,13,23,24,25,35,36,48,49),
+                 lags = c(1,12,13,24,25,36,37),
                  sel.lag = FALSE)
 
 
 fit_ffnn<-fitted(mlp.model)
 frc_ffnn<-forecast(mlp.model,h=47)$mean
 fit_frc_ffnn<-ts(c(fit_ffnn,frc_ffnn),
-                 start=c(2003, 12), 
+                 start=c(2002, 12), 
                  end=c(2019, 6),frequency = 12)
 
 
@@ -110,7 +110,7 @@ compile_ffnn<-ts.intersect(flow_data_xts,fit_frc_ffnn) %>%
   scale_x_yearmon(format="%b-%Y",breaks=pretty_breaks(20))+
   theme(legend.position="bottom")+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust=1))+
-  scale_y_continuous(name="Nilai RMSE Outflow \n Out-of-Sample (milyar Rp)",
+  scale_y_continuous(name="Nilai Outflow (milyar Rp)",
                      labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
   annotate("text", x = 2018, y = 25000, label = "Out-of-Sample")+
   annotate("text", x = 2005, y = 25000, label = "In-Sample")+

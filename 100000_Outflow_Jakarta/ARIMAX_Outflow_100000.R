@@ -43,7 +43,7 @@ compile_arimax<-cbind(flow_data_xts %>% as.data.frame(),
 colnames(compile_arimax)<-c("Outflow","Predicted","date","dum")
 
 
-compile %>% mutate(Outflow=Outflow/1000,Predicted=Predicted/1000)%>%select(-dum)%>%
+compile_arimax %>% mutate(Outflow=Outflow/1000,Predicted=Predicted/1000)%>%select(-dum)%>%
   gather(key="variable",value="value",-date) %>%
   ggplot( aes(x = date, y = value))+geom_line(aes(color = variable), size = 0.75)+
   geom_rect(fill="grey",xmin=2015.6666,xmax=Inf,ymin=-Inf,ymax=Inf,alpha=0.01)+

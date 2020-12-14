@@ -11,7 +11,7 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,c(4:22,24)],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                          frequency=12)
 
 dlnnx_gridsearch<-data.frame(HiddenNodes1=numeric(),
@@ -25,9 +25,9 @@ dlnnx_gridsearch<-data.frame(HiddenNodes1=numeric(),
 set.seed(72)
 
 # Gridsearch tiap input node, layer1 & llayer 2 node
-for(nn1 in c(1))
+for(nn1 in c( 1:20))
 {
-  for(nn2 in c(14))
+  for(nn2 in c(1:20))
   {
       print(paste(nn1,nn2))
       tryCatch({
@@ -35,11 +35,11 @@ for(nn1 in c(1))
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = c(1,12,13,23,24,25,35,36,48,49),
+                        lags = c(1,2,3,4,5,12,24),
                         sel.lag = FALSE,
                         xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-                        xreg.lags=list(0,0,0,0,0,0,0,0),
-                        xreg.keep=list(T,T,T,T,T,T,T,T))
+                        xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                        xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
         
         dlnnx.frc<-forecast(dlnnx.model,h=47,
                             xreg = as.data.frame(flow_data_xts_xreg))$mean
@@ -88,14 +88,14 @@ dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
 #extract weight
 set.seed(72)
 dlnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(1,14),
+                 hd=c(2,7),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
-                 lags = c(1,12,13,23,24,25,35,36,48,49),
+                 lags = c(1,2,3,4,5,12,24),
                  sel.lag = FALSE,
                  xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-                 xreg.lags=c(0,0,0,0,0,0,0,0),
-                 xreg.keep=c(T,T,T,T,T,T,T,T),
+                 xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                 xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
 )
 
 plot(dlnnx.model$net)
@@ -103,7 +103,7 @@ fit_dlnnx<-fitted(dlnnx.model)
 frc_dlnnx<-forecast(dlnnx.model,h=47,
                     xreg = as.data.frame(flow_data_xts_xreg))$mean
 fit_frc_dlnnx<-ts(c(fit_dlnnx,frc_dlnnx),
-                  start=c(2003, 12), 
+                  start=c(2001, 11), 
                   end=c(2019, 6),frequency = 12)
 
 intersect.datatrain.dlnnxfit<-ts.intersect(split_data(flow_data_xts,20)$train,
@@ -118,6 +118,7 @@ TSrepr::mape(intersect.datatrain.dlnnxfit[,1],intersect.datatrain.dlnnxfit[,2])
 TSrepr::rmse(intersect.datatest.dlnnxpred[,1],intersect.datatest.dlnnxpred[,2])
 TSrepr::mape(intersect.datatest.dlnnxpred[,1],intersect.datatest.dlnnxpred[,2])
 
+dlnnx.model$net$result.matrix %>% View()
 
 #plot ts & fitted value & forecast
 ts.intersect(flow_data_xts,fit_frc_dlnnx) %>% 
@@ -141,10 +142,9 @@ ts.intersect(flow_data_xts,fit_frc_dlnnx) %>%
   theme(text = element_text(size=14))
 
 #plot ts & fitted value & forecast
-ts.intersect(flow_data_xts,fit_frc_dlnnx,fit_frc_dlnn) %>% 
+ts.intersect(flow_data_xts,fit_frc_dlnnx,fit_frc_dlnn,index(fit_frc_dlnn)%>%yearmon()) %>% 
   data.frame() %>% 
-  cbind(date=index(fit_frc_dlnnx)%>%yearmon()) %>%
-  rename(Outflow=flow_data_xts,Predicted_DLNNX=fit_frc_dlnnx,Predicted_DLNN=fit_frc_dlnn)%>%
+  `colnames<-`(c("Outflow", "Predicted_DLNNX", "Predicted_DLNN","date")) %>%
   mutate(Outflow=Outflow/1000,
          Predicted_DLNN=Predicted_DLNN/1000,
          Predicted_DLNNX=Predicted_DLNNX/1000)%>%
