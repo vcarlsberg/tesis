@@ -8,7 +8,7 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
 data_m<-flow_data %>% mutate(date = (as.yearmon(make_date(Tahun, Bulan))))%>%
@@ -27,12 +27,76 @@ data_m<-flow_data %>% mutate(date = (as.yearmon(make_date(Tahun, Bulan))))%>%
 
 data_m
 
+flow_data_xts %>% auto.arima(trace=TRUE,d = 0,D = 0)
 
-  
+arima_grid_search<-data.frame(Model=as.character(),
+                              AICC=as.numeric(),
+                              RMSE_In_Sample=as.numeric(),
+                              MAPE_In_Sample=as.numeric(),
+                              RMSE_Out_Sample=as.numeric(),
+                              MAPE_Out_Sample=as.numeric())
 
-arima_indiv<-auto.arima(split_data(flow_data_xts,20)$train)
+split_data(flow_data_xts,20)$train
+acf(diff(split_data(flow_data_xts,20)$train,differences = 1))
+pacf(diff(split_data(flow_data_xts,20)$train,differences = 1))
+
+
+for(p in c(0:2))
+{
+  for(q in c(0:2))
+  {
+    for(P in c(0:2))
+    {
+      for(Q in c(0:2))
+      {
+        tryCatch({
+          arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
+                             order = c(p,1,q),seasonal = c(P,1,Q))
+          print(as.character(arima_indiv))
+          
+          fit_arima<-fitted(arima_indiv)
+          frc_arima<-forecast(arima_indiv,h=length(split_data(flow_data_xts,20)$test))$mean
+          
+          fit_train_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$train,fit_arima)
+          frc_test_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                                 frc_arima)
+          
+          arima_grid_search<-rbind(arima_grid_search,data.frame(Model=as.character(arima_indiv),
+                                                                AICC=arima_indiv$aicc,
+                                                                RMSE_In_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$train,fit_arima),
+                                                                MAPE_In_Sample=TSrepr::mape(split_data(flow_data_xts,20)$train,fit_arima),
+                                                                RMSE_Out_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$test,frc_arima),
+                                                                MAPE_Out_Sample=TSrepr::mape(split_data(flow_data_xts,20)$test,frc_arima)))
+          
+          
+          
+          #fit_frc_arima<-ts(c(fit_arima,frc_arima),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
+          
+          
+        },error=function(e){
+          print(e)
+        })
+
+      }
+    }
+  }
+}
+
+arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
+                   order = c(0,1,0),seasonal = c(2,1,2))
+lmtest::coeftest(arima_indiv)
+
+residual_arima_indiv<-split_data(flow_data_xts,20)$train-arima_indiv$fitted
+Box.test(residual_arima_indiv,lag=30,type = "Ljung-Box")
+mean(residual_arima_indiv)
+
 fit_arima<-fitted(arima_indiv)
-frc_arima<-forecast(arima_indiv,h=47)$mean
+frc_arima<-forecast(arima_indiv,h=length(split_data(flow_data_xts,20)$test))$mean
+
+fit_train_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$train,fit_arima)
+frc_test_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                       frc_arima)
+
 fit_frc_arima<-ts(c(fit_arima,frc_arima),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
 
 ts.intersect(flow_data_xts,fit_frc_arima) %>% time() %>% as.yearmon()
@@ -70,5 +134,18 @@ for(h in c(1:24))
                      )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal()+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(text = element_text(size=16))+ theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
+
+  
+  
