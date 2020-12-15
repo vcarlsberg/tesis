@@ -25,9 +25,9 @@ dlnn_gridsearch<-data.frame(HiddenNodes1=numeric(),
 set.seed(72)
 
 # Gridsearch tiap input node, layer1 & llayer 2 node
-for(nn1 in c(1))
+for(nn1 in c(1:20))
 {
-  for(nn2 in c(14))
+  for(nn2 in c(1:20))
   {
       print(paste(nn1,nn2))
       tryCatch({
@@ -35,7 +35,7 @@ for(nn1 in c(1))
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = c(1,12,13,23,24,25,35,36,48,49),
+                        lags = c(1,12,13,24,25,36,37),
                         sel.lag = FALSE)
         
         dlnn.frc<-forecast(dlnn.model,h=47)$mean
@@ -65,10 +65,10 @@ for(nn1 in c(1))
 }
 
 dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
-                hd=c(1,14),
+                hd=c(2,3),
                 difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                 reps = 1,
-                lags = c(1,12,13,23,24,25,35,36,48,49),
+                lags = c(1,12,13,24,25,36,37),
                 sel.lag = FALSE)
 dlnn.model$MSE
 
@@ -77,7 +77,7 @@ set.seed(72)
 fit_dlnn<-fitted(dlnn.model)
 frc_dlnn<-forecast(dlnn.model,h=47)$mean
 fit_frc_dlnn<-ts(c(fit_dlnn,frc_dlnn),
-                 start=c(2003, 12), 
+                 start=c(2002, 12), 
                  end=c(2019, 6),frequency = 12)
 
 
@@ -89,13 +89,13 @@ TSrepr::rmse(ts.intersect(flow_data_xts,frc_dlnn)[,1],ts.intersect(flow_data_xts
 
 
 dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
-  filter(HiddenNodes2 %in% c(1,5,10,14,16,19) )%>%
+  filter(HiddenNodes2 %in% c(1,3,5,13,15,20) )%>%
   ggplot( aes(x = HiddenNodes1, y = (OutSampleRMSE)/1000,
               group=as.factor(HiddenNodes2),
               col=as.factor(HiddenNodes2)))+
-  geom_line(size = 1.5)+
+  geom_line(size = 0.8)+
   labs(color = "HiddenNodes2")+
-  theme_minimal(base_size=18)+
+  theme_minimal(base_size=16)+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
   theme(legend.position="bottom")+

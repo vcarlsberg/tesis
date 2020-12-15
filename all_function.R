@@ -78,12 +78,16 @@ add_eidulfitr_regressor<-function(data,flow){
 read_data<-function(kota,pecahan,flow){
   library(gsheet)
   library(tidyverse)
-  file<-read.csv("Data_Refit.csv")
+  file<-read_delim("Data_Refit.csv", 
+                   ";", escape_double = FALSE, trim_ws = TRUE) %>% 
+    fastDummies::dummy_cols(select_columns = c("Bulan"))
   #url<-"https://drive.google.com/file/d/1WES1QCc0OHqZt9kiFkwRp2qx2RGxOA97/view?usp=sharing"
   #dataset<-gsheet2tbl(url) %>% filter(Kota == kota) %>% select(Kota,Tahun,Bulan,pecahan)
-  dataset<-file %>% filter(Kota == kota, Flow==flow)%>% 
+  dataset<-file %>% filter(Kota == kota, Flow==flow) %>%
     select(Kota,Tahun,Bulan,pecahan,eid_week_1,eid_week_2,eid_week_3,eid_week_4,
-           sub_eid_week_1,sub_eid_week_2,sub_eid_week_3,sub_eid_week_4)
+           sub_eid_week_1,sub_eid_week_2,sub_eid_week_3,sub_eid_week_4,
+           Bulan_1,Bulan_2,Bulan_3,Bulan_4,Bulan_5,Bulan_6,Bulan_7,Bulan_8,Bulan_9,Bulan_10,
+           Bulan_11,Bulan_12)
   
   index<-dataset[,4]<=0.0000
   dataset[,4][index]<-NA
@@ -94,6 +98,8 @@ read_data<-function(kota,pecahan,flow){
   
   dataset<-dataset %>% select(-Kota)
   row.names(dataset) <- NULL
+  
+  dataset<-dataset%>%mutate(waktu=index(dataset))
   return(dataset)
   
   #dataset[,1]<-as.factor(dataset[,1])

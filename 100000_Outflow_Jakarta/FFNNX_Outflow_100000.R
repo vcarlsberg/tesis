@@ -11,30 +11,28 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,c(4:22,24)],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                          frequency=12)
 
 mlp_gridsearch<-data.frame(HiddenNodes=numeric(),
-                           InputNodes=numeric(),
                            InSampleRMSE=numeric(),
                            InSampleMAPE=numeric(),
                            OutSampleRMSE=numeric(),
                            OutSampleMAPE=numeric()
 )
 set.seed(72)
-for(nn in c(4))
+for(nn in c(1:20))
 {
-  for(input in c(15))
-  {
     mlp.model<-mlp(split_data(flow_data_xts,20)$train,
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
-                   xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-                   xreg.lags=list(0,0,0,0,0,0,0,0),
-                   xreg.keep=list(T,T,T,T,T,T,T,T),
                    reps = 1,
-                   lags = 1:input,
-                   sel.lag = FALSE)
+                   lags = c(1,2,3,4,5,12,24),
+                   sel.lag = FALSE,
+                   xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
+                   xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                   xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
+    )
     
     mlp.frc<-forecast(mlp.model,h=47,
                       xreg = as.data.frame(flow_data_xts_xreg))
@@ -47,7 +45,6 @@ for(nn in c(4))
     
     
     result.df<-data.frame(HiddenNodes=nn,
-                          InputNodes=input,
                           InSampleRMSE=TSrepr::rmse(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2]),
                           InSampleMAPE=TSrepr::mape(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2]),
                           OutSampleRMSE=TSrepr::rmse(intersect.datatest.mlppred[,1],intersect.datatest.mlppred[,2]),
@@ -55,39 +52,39 @@ for(nn in c(4))
     )
     
     mlp_gridsearch<-rbind(mlp_gridsearch,result.df)
-  }
+  
 }
 
 plot(mlp_gridsearch)
 
-mlp_gridsearch %>% filter(InputNodes==c(1,10,15,20))%>%
-  ggplot( aes(x = HiddenNodes, y = (OutSampleRMSE)/1000,
-              group=as.factor(InputNodes),
-              col=as.factor(InputNodes)))+
-  geom_line(size = 1.5)+
+mlp_gridsearch %>%
+  ggplot( aes(x = HiddenNodes, y = (OutSampleRMSE)/1000))+
+  geom_line(size = 0.5)+
+  theme(text = element_text(size=18))+theme_minimal(base_size=16)+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  ylab('Out-of-Sample RMSE (milyar Rp)')+
   scale_y_continuous(name="Nilai Out-Sample RMSE (milyar Rp)",
-                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
-  labs(color = "InputNodes")+
-  theme(text = element_text(size=14))
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE),
+                     breaks = scales::pretty_breaks(n = 10))
 
 
 
 set.seed(72)
 ffnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-               hd=c(1),
+               hd=c(4),
                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                reps = 1,
-               lags = c(1,12,13,23,24,25,35,36,48,49),
+               lags = c(1,2,3,4,5,12,24),
                sel.lag = FALSE,
                xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-               xreg.lags=c(0,0,0,0,0,0,0,0),
-               xreg.keep=c(T,T,T,T,T,T,T,T),
+               xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+               xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
                )
 fit_ffnnx<-fitted(ffnnx.model)
 frc_ffnnx<-forecast(ffnnx.model,h=47,
                    xreg = as.data.frame(flow_data_xts_xreg))$mean
 fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
-                 start=c(2003, 12), 
+                 start=c(2001, 11), 
                  end=c(2019, 6),frequency = 12)
 
 plot(ffnnx.model$net)
@@ -133,10 +130,9 @@ compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx) %>%
 compile_ffnnx
 
 #PLOT FFNN & FFNNX
-compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx,fit_frc_ffnn) %>% 
+compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx,fit_frc_ffnn,index(fit_frc_ffnn)%>%yearmon()) %>%
   data.frame() %>% 
-  cbind(date=index(fit_frc_ffnnx)%>%yearmon()) %>%
-  rename(Outflow=flow_data_xts,Predicted_FFNNX=fit_frc_ffnnx,Predicted_FFNN=fit_frc_ffnn)%>%
+  `colnames<-`(c("Outflow", "Predicted_FFNNX", "Predicted_FFNN","date")) %>%
   mutate(Outflow=Outflow/1000,Predicted_FFNNX=Predicted_FFNNX/1000,Predicted_FFNN=Predicted_FFNN/1000)%>%
   gather(key="variable",value="value",-date)%>%
   ggplot( aes(x = date, y = value))+theme_minimal(base_size=16)+

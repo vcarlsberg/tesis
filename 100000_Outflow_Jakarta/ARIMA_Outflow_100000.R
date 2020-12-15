@@ -27,8 +27,10 @@ data_m<-flow_data %>% mutate(date = (as.yearmon(make_date(Tahun, Bulan))))%>%
 
 data_m
 
+flow_data_xts %>% auto.arima(trace=TRUE,d = 0,D = 0)
+
 arima_grid_search<-data.frame(Model=as.character(),
-                              AIC=as.numeric(),
+                              AICC=as.numeric(),
                               RMSE_In_Sample=as.numeric(),
                               MAPE_In_Sample=as.numeric(),
                               RMSE_Out_Sample=as.numeric(),
@@ -47,28 +49,34 @@ for(p in c(0:2))
     {
       for(Q in c(0:2))
       {
-        arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
-                           order = c(p,1,q),seasonal = c(P,1,Q))
-        
-        fit_arima<-fitted(arima_indiv)
-        frc_arima<-forecast(arima_indiv,h=length(split_data(flow_data_xts,20)$test))$mean
-        
-        fit_train_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$train,fit_arima)
-        frc_test_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$test,
-                                               frc_arima)
-        
-        arima_grid_search<-rbind(arima_grid_search,data.frame(Model=as.character(arima_indiv),
-                                                              AIC=arima_indiv$aic,
-                                                              RMSE_In_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$train,fit_arima),
-                                                              MAPE_In_Sample=TSrepr::mape(split_data(flow_data_xts,20)$train,fit_arima),
-                                                              RMSE_Out_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$test,frc_arima),
-                                                              MAPE_Out_Sample=TSrepr::mape(split_data(flow_data_xts,20)$test,frc_arima)))
-        
-        
-        
-        #fit_frc_arima<-ts(c(fit_arima,frc_arima),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
-        
-        
+        tryCatch({
+          arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
+                             order = c(p,1,q),seasonal = c(P,1,Q))
+          print(as.character(arima_indiv))
+          
+          fit_arima<-fitted(arima_indiv)
+          frc_arima<-forecast(arima_indiv,h=length(split_data(flow_data_xts,20)$test))$mean
+          
+          fit_train_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$train,fit_arima)
+          frc_test_intersect_arima<-ts.intersect(split_data(flow_data_xts,20)$test,
+                                                 frc_arima)
+          
+          arima_grid_search<-rbind(arima_grid_search,data.frame(Model=as.character(arima_indiv),
+                                                                AICC=arima_indiv$aicc,
+                                                                RMSE_In_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$train,fit_arima),
+                                                                MAPE_In_Sample=TSrepr::mape(split_data(flow_data_xts,20)$train,fit_arima),
+                                                                RMSE_Out_Sample=TSrepr::rmse(split_data(flow_data_xts,20)$test,frc_arima),
+                                                                MAPE_Out_Sample=TSrepr::mape(split_data(flow_data_xts,20)$test,frc_arima)))
+          
+          
+          
+          #fit_frc_arima<-ts(c(fit_arima,frc_arima),start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6),frequency = 12)
+          
+          
+        },error=function(e){
+          print(e)
+        })
+
       }
     }
   }
@@ -79,7 +87,7 @@ arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
 lmtest::coeftest(arima_indiv)
 
 residual_arima_indiv<-split_data(flow_data_xts,20)$train-arima_indiv$fitted
-Box.test(residual_arima_indiv,lag=30)
+Box.test(residual_arima_indiv,lag=30,type = "Ljung-Box")
 mean(residual_arima_indiv)
 
 fit_arima<-fitted(arima_indiv)

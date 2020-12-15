@@ -15,43 +15,39 @@ flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]
                          frequency=12)
 
 set.seed(72)
-ffnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(1),
-                 difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
-                 reps = 1,
-                 lags = c(1,12,13,23,24,25,35,36,48,49),
-                 sel.lag = FALSE,
-                 xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
-                 xreg.lags=c(0,0,0,0,0,0,0,0),
-                 xreg.keep=c(T,T,T,T,T,T,T,T),
+nl.model<-mlp(split_data(flow_data_xts,20)$train,
+              hd=c(1),
+              difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
+              reps = 1,
+              lags = c(1,12,13,24,25,36,37),
+              sel.lag = FALSE
 )
 
-fit_ffnnx<-fitted(ffnnx.model)
-frc_ffnnx<-forecast(ffnnx.model,h=47,
-                    xreg = as.data.frame(flow_data_xts_xreg))$mean
+fit_nl<-fitted(nl.model)
+frc_nl<-forecast(nl.model,h=47)$mean
 
-fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
-                  start=c(2003, 12), 
-                  end=c(2019, 6),frequency = 12)
+fit_frc_nl<-ts(c(fit_nl,frc_nl),
+               start=c(2002, 12), 
+               end=c(2019, 6),frequency = 12)
 
 
-arima_indiv<-Arima(split_data(flow_data_xts,20)$train,
-                   order = c(0,1,0),seasonal = c(2,1,2))
-fit_arima<-fitted(arima_indiv)
-frc_arima<-forecast(arima_indiv,h=47)$mean
-fit_frc_arima<-ts(c(fit_arima,frc_arima),
-                  start=c(1999, 11), 
-                  end=c(2019, 6),frequency = 12)
+l.model<-Arima(split_data(flow_data_xts,20)$train,
+               order = c(0,1,0),seasonal = c(2,1,2))
+fit_l<-fitted(l.model)
+frc_l<-forecast(l.model,h=47)$mean
+fit_frc_l<-ts(c(fit_l,frc_l),
+              start=c(1999, 11), 
+              end=c(2019, 6),frequency = 12)
 
 weight_kecil<-function(w1,w2) 
 {
-  Metrics::sse(raw_ffnnx_arima[,1],
-               w1*na.omit(raw_ffnnx_arima[,2])+
-                 w2*na.omit(raw_ffnnx_arima[,3]))
+  Metrics::sse(intersect_raw_nl_l[,1],
+               w1*na.omit(intersect_raw_nl_l[,2])+
+                 w2*na.omit(intersect_raw_nl_l[,3]))
 }
 
 set.seed(72)
-raw_ffnnx_arima<-ts.intersect(flow_data_xts,fit_ffnnx,fit_arima)
+intersect_raw_nl_l<-ts.intersect(flow_data_xts,fit_nl,fit_l)
 GA <- ga(type = "real-valued",pmutation=0.01,
          fitness = function(w) -weight_kecil(w[1],w[2]),
          lower =c(-2,-2), upper = c(2,2),
@@ -60,35 +56,22 @@ GA <- ga(type = "real-valued",pmutation=0.01,
 plot(GA)
 GA@solution
 
-raw_dlnn_arimax_train<-ts.intersect(flow_data_xts,
-                                    GA@solution[1]*fit_ffnnx+GA@solution[2]*fit_arima)
+weighted_fit<-ts.intersect(flow_data_xts,
+                           GA@solution[1]*fit_nl+GA@solution[2]*fit_l)
 
-TSrepr::mape(raw_dlnn_arimax_train[,1],raw_dlnn_arimax_train[,2])
-TSrepr::rmse(raw_dlnn_arimax_train[,1],raw_dlnn_arimax_train[,2])
+weighted_frc<-ts.intersect(flow_data_xts,
+                           GA@solution[1]*frc_nl+GA@solution[2]*frc_l)
 
-raw_dlnn_arimax_test<-ts.intersect(flow_data_xts,
-                                   GA@solution[1]*frc_ffnnx+GA@solution[2]*frc_arima)
-TSrepr::mape(raw_dlnn_arimax_test[,1],raw_dlnn_arimax_test[,2])
-TSrepr::rmse(raw_dlnn_arimax_test[,1],raw_dlnn_arimax_test[,2])
+weighted_fit_frc<-ts(c(weighted_fit[,2],weighted_frc[,2]),
+                     start=c(2002, 12), 
+                     end=c(2019, 6),frequency = 12)
+intersect_data_weighted<-ts.intersect(flow_data_xts,weighted_fit_frc)
+colnames(intersect_data_weighted)<-c("Outflow","Hybrid")
 
-#raw_dlnn_arimax<-ts.intersect(flow_data_xts,0.744*fit_frc_dlnn,0.281*fit_frc_arimax)
-#raw_ffnnx_arima<-raw_ffnnx_arima %>% data.frame()
-colnames(raw_ffnnx_arima)<-c("Outflow","FFNNX","ARIMA")
-
-raw_ffnnx_arima_train<-ts.intersect(flow_data_xts,
-                                    GA@solution[1]*fit_ffnnx+GA@solution[2]*fit_arima)
-raw_ffnnx_arima_test<-ts.intersect(flow_data_xts,
-                                   GA@solution[1]*frc_ffnnx+GA@solution[2]*frc_arima)
-ffnnx_arima<-ts(c(raw_ffnnx_arima_train[,2],raw_ffnnx_arima_test[,2]),
-                start=c(2003, 12), 
-                end=c(2019, 6),frequency = 12)
-raw_ffnnx_arima<-ts.intersect(flow_data_xts,ffnnx_arima)
-colnames(raw_ffnnx_arima)<-c("Outflow","Hybrid")
-
-raw_ffnnx_arima%>%data.frame()%>%
+intersect_data_weighted%>%data.frame()%>%
   mutate(Outflow=Outflow/1000,
          Predicted=Hybrid/1000,
-         date=index(raw_ffnnx_arima)%>%yearmon())%>%
+         date=index(intersect_data_weighted)%>%yearmon())%>%
   select(c("Outflow","date","Predicted"))%>%
   gather(key="variable",value="value",-date)%>%
   ggplot( aes(x = date, y = value))+theme_minimal(base_size=16)+
@@ -109,11 +92,10 @@ df.mape.oos<-data.frame(fh=numeric(),
 
 for(h in c(1:24))
 {
-  frc_ffnnx<-forecast(ffnnx.model,h=h,
-                      xreg = as.data.frame(flow_data_xts_xreg))$mean
-  frc_arima<-forecast(arima_indiv,h=h)$mean
+  frc_nl<-forecast(nl.model,h=h)$mean
+  frc_l<-forecast(l.model,h=h)$mean
   
-  intersect_data<-ts.intersect(GA@solution[1]*frc_ffnnx+GA@solution[2]*frc_arima,
+  intersect_data<-ts.intersect(GA@solution[1]*frc_nl+GA@solution[2]*frc_l,
                                split_data(flow_data_xts,20)$test[1:h])
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],

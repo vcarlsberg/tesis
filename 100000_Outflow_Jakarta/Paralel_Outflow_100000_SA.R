@@ -11,72 +11,56 @@ flow_data<-read_data("Jakarta","K100000","Outflow")
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
 
-flow_data_xts_xreg <- ts(flow_data[,4],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
+flow_data_xts_xreg <- ts(flow_data[,4:11],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                          frequency=12)
 
 set.seed(72)
-dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
-                hd=c(10,12),
-                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
-                reps = 1,
-                lags = 1:2,
-                sel.lag = FALSE)
-fit_dlnn<-fitted(dlnn.model)
-frc_dlnn<-forecast(dlnn.model,h=47)$mean
+nl.model<-mlp(split_data(flow_data_xts,20)$train,
+                 hd=c(1),
+                 difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
+                 reps = 1,
+                 lags = c(1,12,13,24,25,36,37),
+                 sel.lag = FALSE
+)
 
-fit_frc_dlnn<-ts(c(fit_dlnn,frc_dlnn),
-                  start=c(2000, 1), 
+fit_nl<-fitted(nl.model)
+frc_nl<-forecast(nl.model,h=47)$mean
+
+fit_frc_nl<-ts(c(fit_nl,frc_nl),
+                  start=c(2002, 12), 
                   end=c(2019, 6),frequency = 12)
 
 
-arimax_indiv<-Arima(split_data(flow_data_xts,20)$train,
-                    xreg = split_data(flow_data_xts_xreg,20)$train,
-                    order=c(0,1,2),seasonal = c(1,0,0))
-fit_arimax<-fitted(arimax_indiv)
-frc_arimax<-forecast(arimax_indiv,h=47,
-                     xreg = split_data(flow_data_xts_xreg,20)$test)$mean
-fit_frc_arimax<-ts(c(fit_arimax,frc_arimax),
-                 start=c(1999, 11), 
-                 end=c(2019, 6),frequency = 12)
-
-weight_kecil<-function(w1,w2) 
-{
-  Metrics::sse(raw_dlnn_arimax_train[,1],
-      w1*na.omit(raw_dlnn_arimax_train[,2])+
-        w2*na.omit(raw_dlnn_arimax_train[,3]))
-}
-
-set.seed(72)
-GA <- ga(type = "real-valued",pmutation=0.01,
-         fitness = function(w) -weight_kecil(w[1],w[2]),
-         lower =c(-2,-2), upper = c(2,2),
-         maxiter=100,parallel=TRUE,seed=72,monitor = FALSE)
-
-plot(GA)
-GA@solution
-
-Box.test(raw_dlnn_arimax_train[,1]-raw_dlnn_arimax_train[,2],lag = 30)
-
-raw_dlnn_arimax_train<-ts.intersect(flow_data_xts,0.053*fit_dlnn+1.061*fit_arimax)
-TSrepr::mape(raw_dlnn_arimax_train[,1],raw_dlnn_arimax_train[,2])
-TSrepr::rmse(raw_dlnn_arimax_train[,1],raw_dlnn_arimax_train[,2])
-raw_dlnn_arimax_test<-ts.intersect(flow_data_xts,0.744*frc_dlnn+0.281*frc_arimax)
-TSrepr::mape(raw_dlnn_arimax_test[,1],raw_dlnn_arimax_test[,2])
-TSrepr::rmse(raw_dlnn_arimax_test[,1],raw_dlnn_arimax_test[,2])
-
-raw_dlnn_arimax<-ts.intersect(flow_data_xts,0.744*fit_frc_dlnn,0.281*fit_frc_arimax)
-raw_dlnn_arimax<-raw_dlnn_arimax %>% data.frame()
-colnames(raw_dlnn_arimax)<-c("Outflow","DLNN","ARIMAX")
-
-lm(Outflow~.+0,data = raw_dlnn_arimax) %>% summary()
+l.model<-Arima(split_data(flow_data_xts,20)$train,
+                   order = c(0,1,0),seasonal = c(2,1,2))
+fit_l<-fitted(l.model)
+frc_l<-forecast(l.model,h=47)$mean
+fit_frc_l<-ts(c(fit_l,frc_l),
+                  start=c(1999, 11), 
+                  end=c(2019, 6),frequency = 12)
 
 
-raw_dlnn_arimax%>%
-  cbind(date=index(fit_frc_dlnn)%>%yearmon()) %>%
-  mutate(Hybrid=(DLNN+ARIMAX)/1000,
-         DLNN=DLNN/1000,ARIMAX=ARIMAX/1000,
-         Outflow=Outflow/1000)%>%
-  select(c("Outflow","date","Hybrid"))%>%
+hybrid_train<-ts.intersect(flow_data_xts,0.5*fit_nl+0.5*fit_l)
+TSrepr::mape(hybrid_train[,1],hybrid_train[,2])
+TSrepr::rmse(hybrid_train[,1],hybrid_train[,2])
+hybrid_test<-ts.intersect(flow_data_xts,0.5*frc_nl+0.5*frc_l)
+TSrepr::mape(hybrid_test[,1],hybrid_test[,2])
+TSrepr::rmse(hybrid_test[,1],hybrid_test[,2])
+
+hybrid_train_test<-ts(c(hybrid_train[,2],hybrid_test[,2]),
+                      start = c(2002,12),
+                      end=c(2019,6),
+                      frequency = 12)
+outflow_hybrid_train_test<-ts.intersect(flow_data_xts,hybrid_train_test)
+colnames(outflow_hybrid_train_test)<-c("Outflow","Hybrid")
+
+
+
+outflow_hybrid_train_test%>%data.frame()%>%
+  cbind(date=index(hybrid_train_test)%>%yearmon()) %>%
+  mutate(Outflow=Outflow/1000,
+         Predicted=Hybrid/1000)%>%
+  select(c("Outflow","date","Predicted"))%>%
   gather(key="variable",value="value",-date)%>%
   ggplot( aes(x = date, y = value))+theme_minimal()+
   geom_line(aes(color = variable), size = 0.75)+
@@ -97,11 +81,10 @@ df.mape.oos<-data.frame(fh=numeric(),
 
 for(h in c(1:24))
 {
-  frc_dlnn<-forecast(dlnn.model,h=h)$mean
-  frc_arimax<-forecast(arimax_indiv,h=h,
-                       xreg = split_data(flow_data_xts_xreg,20)$test)$mean
+  frc_nl<-forecast(nl.model,h=h)$mean
+  frc_l<-forecast(l.model,h=h)$mean
   
-  intersect_data<-ts.intersect(frc_dlnn+frc_arimax,
+  intersect_data<-ts.intersect(0.5*frc_nl+0.5*frc_l,
                                split_data(flow_data_xts,20)$test[1:h])
   df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],
@@ -109,5 +92,15 @@ for(h in c(1:24))
   )
 }
 
-df.mape.oos %>% ggplot(aes(x=fh,y=mape)) + geom_line(size=1) +theme_minimal()+
-  xlab("Forecast Horizon")+ylab("MAPE (%)")+ theme(text = element_text(size=16))
+df.mape.oos %>% mutate(predicate=case_when(
+  mape<10 ~ "Akurasi Tinggi",
+  mape>=10 & mape<=20 ~ "Baik",
+  mape>20 & mape<=50 ~ "Cukup",
+  mape>50  ~ "Tidak Akurat"
+))%>% ggplot(aes(x=fh,y=mape,color=factor(predicate))) + geom_path(aes(group=2),size=1)+
+  theme_minimal()+
+  xlab("Forecast Horizon")+ylab("MAPE (%)")+ 
+  theme(text = element_text(size=16))+ theme(legend.position = "top")+
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))+
+  labs(color='Predikat Akurasi Peramalan') 
