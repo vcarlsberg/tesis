@@ -49,9 +49,9 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   train_test_data<-split_data(flow_data_transformed,20)
 
   if(adf.test(train_test_data$train)$p.value>0.05){
-    arima.model<-auto.arima(train_test_data$train,d = 1,D=1)
+    arima.model<-auto.arima(train_test_data$train,d = 1,D=1,ic = "aicc")
   }else{
-    arima.model<-auto.arima(train_test_data$train,d = 0,D=0)
+    arima.model<-auto.arima(train_test_data$train,d = 0,D=0,ic = "aicc")
   }
   
   residual<-train_test_data$train-arima.model$fitted

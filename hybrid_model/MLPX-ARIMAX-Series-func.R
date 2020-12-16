@@ -113,11 +113,8 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   
   residual<-ts.intersect(residual,xreg_data$train)
   
-  if(adf.test(residual)$p.value>0.05){
-    arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=0,D=0)
-  }else{
-    arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=1,D=1)
-  }
+  
+  arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=0,D=0,ic = "aicc")
   
   
   

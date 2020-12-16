@@ -37,11 +37,7 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
   
-  if(adf.test(train_test_data$train)$p.value>0.05){
-    arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train)
-  }else{
-    arima.model<-auto.arima(train_test_data$train,d = 1,D=1,xreg = xreg_data$train)
-  }
+  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc")
   
   result<-ts.intersect(train_test_data$train,arima.model$fitted)
   colnames(result)<-c("train_data","arima_fitted")
