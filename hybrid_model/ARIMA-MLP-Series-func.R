@@ -1,4 +1,4 @@
-ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
+ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -32,7 +32,8 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                DateExecuted=character(),
                                layer1=character(),
                                layer2=character(),
-                               error=numeric()
+                               error=numeric(),
+                               inputLayer=numeric()
     )
     
 
@@ -47,7 +48,12 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
   
   train_test_data<-split_data(flow_data_transformed,20)
 
-  arima.model<-auto.arima(train_test_data$train)
+  if(adf.test(train_test_data$train)$p.value>0.05){
+    arima.model<-auto.arima(train_test_data$train,d = 1,D=1,ic = "aicc")
+  }else{
+    arima.model<-auto.arima(train_test_data$train,d = 0,D=0,ic = "aicc")
+  }
+  
   residual<-train_test_data$train-arima.model$fitted
   
   if(MLP_layer==1)
@@ -55,39 +61,43 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
     testFun <- function(x)
     {
       mlp.model<-mlp(residual,hd=c(x[1]),
-                     reps = 1,
-                     lags = 1:60)
-      mlp.model$MSE
+                     lags = lag,
+                     sel.lag = FALSE,
+      )
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
 	
-	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
+	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
   }else if(MLP_layer==2){
     testFun <- function(x)
     {
       mlp.model<-mlp(residual,hd=c(x[1],x[2]),
-                     reps = 1,
-                     lags = 1:60)
-      mlp.model$MSE
+                     lags = lag,
+                     sel.lag = FALSE,
+      )
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
     
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
 	  
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
 	
     
   }
   
   mlp.model<-mlp(residual,hd=c(sol$minlevels),
-                 reps = 1,
-                 lags = 1:60)
+                 lags = lag,
+                 sel.lag = FALSE)
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted) %>% InvBoxCox(lambda=lambda)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
@@ -109,7 +119,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                     MAPE=TSrepr::mape(result[,1],result[,2]),
                                     RMSE=TSrepr::rmse(result[,1],result[,2]),
                                     linearmodel=linearmodel.candidate,
-                                    nonlinearmodel=nonlinearmodel.candidate,
+                                    nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
@@ -138,7 +148,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                       MAPE=TSrepr::mape(result.pred[,1],result.pred[,2]),
                                       RMSE=TSrepr::rmse(result.pred[,1],result.pred[,2]),
                                       linearmodel=linearmodel.candidate,
-                                      nonlinearmodel=nonlinearmodel.candidate,
+                                      nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,

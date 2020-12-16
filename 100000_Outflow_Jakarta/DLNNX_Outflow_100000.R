@@ -6,7 +6,7 @@ source("all_function.R")
 init_run()
 
 
-flow_data<-read_data("Jakarta","K100000","Outflow")
+flow_data<-read_data("Jakarta","K50000","Outflow")
 
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
@@ -35,7 +35,7 @@ for(nn1 in c( 1:20))
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = c(1,2,3,4,5,12,24),
+                        lags = c(1,2,3,12,13,14,15),
                         sel.lag = FALSE,
                         xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
                         xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
@@ -88,15 +88,18 @@ dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
 #extract weight
 set.seed(72)
 dlnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(2,7),
+                 hd=c(dlnnx_gridsearch$HiddenNodes1[which.min(dlnn_gridsearch$OutSampleRMSE)],
+                       dlnnx_gridsearch$HiddenNodes2[which.min(dlnn_gridsearch$OutSampleRMSE)]),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
-                 lags = c(1,2,3,4,5,12,24),
+                 lags = c(1,2,3,12,13,14,15),
                  sel.lag = FALSE,
                  xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
                  xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
                  xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
 )
+
+dlnnx.model$lags
 
 plot(dlnnx.model$net)
 fit_dlnnx<-fitted(dlnnx.model)
