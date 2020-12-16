@@ -1,5 +1,5 @@
 
-MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
+MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -33,14 +33,15 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                DateExecuted=character(),
                                layer1=numeric(),
                                layer2=numeric(),
-                               error=numeric())
+                               error=numeric(),
+                             inputLayer=numeric())
 
   
   data<-read_data(location,denomination,flow)
   
   flow_data_xts <- ts(data[,3],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                       frequency=12)
-  xreg_xts<-ts(data[,4],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
+  xreg_xts<-ts(data[,c(4:22,24)],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                frequency=12)
   
   lambda<-preprocessing
@@ -54,17 +55,22 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
     testFun <- function(x)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
-                     reps = 1,
-                     lags = 1:60,
+                     lags = lag,
+                     reps=1,
+                     sel.lag = FALSE,
                      xreg =as.data.frame(xreg_data$train),
-                     xreg.lags=list(0),xreg.keep=list(TRUE))
-      mlp.model$MSE
+                     xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                     xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
+      
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test),
+                                        xreg=as.data.frame(xreg_xts))$mean)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
-	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
+	  gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
 	
@@ -74,17 +80,22 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
                      reps = 1,
-                     lags = 1:60,
+                     lags = lag,
+                     sel.lag = FALSE,
                      xreg =as.data.frame(xreg_data$train),
-                     xreg.lags=list(0),xreg.keep=list(TRUE))
-      mlp.model$MSE
+                     xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                     xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
+      
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test),
+                                        xreg=as.data.frame(xreg_xts))$mean)
     }
 	
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
 	  
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
 	
     
@@ -92,14 +103,23 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
-                 lags = 1:60,
+                 lags = lag,
+                 sel.lag = FALSE,
                  xreg =as.data.frame(xreg_data$train),
-                 xreg.lags=list(0),xreg.keep=list(TRUE))
+                 xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                 xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
   
   residual<-train_test_data$train-mlp.model$fitted
   
   residual<-ts.intersect(residual,xreg_data$train)
-  arima.model<-auto.arima(residual[,1],xreg = residual[,2])
+  
+  if(adf.test(residual)$p.value>0.05){
+    arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=0,D=0)
+  }else{
+    arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=1,D=1)
+  }
+  
+  
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted) %>% InvBoxCox(lambda=lambda)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
@@ -118,7 +138,7 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                     MAPE=TSrepr::mape(result[,1],result[,2]),
                                     RMSE=TSrepr::rmse(result[,1],result[,2]),
                                     linearmodel=linearmodel.candidate,
-                                    nonlinearmodel=nonlinearmodel.candidate,
+                                    nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
@@ -148,7 +168,7 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow)
                                       MAPE=TSrepr::mape(result.pred[,1],result.pred[,2]),
                                       RMSE=TSrepr::rmse(result.pred[,1],result.pred[,2]),
                                       linearmodel=linearmodel.candidate,
-                                      nonlinearmodel=nonlinearmodel.candidate,
+                                      nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,

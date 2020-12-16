@@ -190,8 +190,8 @@ autoplot(ts(a_xts,start=c(2019,4,16),frequency = 365.25))
 
 (as.xts(flow_data_xts)/1000) %>% autoplot() + 
   labs(x="Tahun",y="Nilai (dalam milyar)",title="Outflow Jakarta K100000")+
-  geom_vline(xintercept = seq(from=1999, to=2019, by=1),color="grey")+ 
-  scale_x_continuous(breaks = seq(1999, 2020, 1))+theme(text = element_text(size=14))+
+  geom_vline(xintercept = seq(from=1994, to=2019, by=1),color="grey")+ 
+  scale_x_continuous(breaks = seq(1994, 2020, 1))+theme(text = element_text(size=14))+
   scale_y_continuous(labels=function(x) format(x, big.mark = ".", scientific = FALSE))
 
 pa<-(as.xts(flow_data_xts)['2010']/1000) %>% autoplot() + labs(x="Tahun",y="Nilai (dalam \n milyar \n Rupiah)",title="Outflow Jakarta K100000 (th 2010)")+
