@@ -6,7 +6,7 @@ source("all_function.R")
 init_run()
 
 
-flow_data<-read_data("Jakarta","K100000","Outflow")
+flow_data<-read_data("Jakarta","K50000","Outflow")
 
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
@@ -28,7 +28,7 @@ for(nn in c(1:20))
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                    reps = 1,
-                   lags = c(1,12,13,24,25,36,37),
+                   lags = c(1,12,24,13,25,2,14,26),
                    sel.lag = FALSE)
     
     mlp.frc<-forecast(mlp.model,h=47)$mean
@@ -51,6 +51,7 @@ for(nn in c(1:20))
 }
 
 
+
 #plot(mlp_gridsearch)
 
 #melt_mlp_gridsearch<-melt(mlp_gridsearch)
@@ -68,25 +69,29 @@ mlp_gridsearch %>%
   
   
 set.seed(72)
+
 mlp.model<-mlp(split_data(flow_data_xts,20)$train,
-                 hd=c(1),
+                 hd=c(which.min(mlp_gridsearch$OutSampleRMSE)   ),
                  difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                  reps = 1,
-                 lags = c(1,12,13,24,25,36,37),
+                 lags = c(1,12,24,13,25,2,14,26),
                  sel.lag = FALSE)
 
 
+
 fit_ffnn<-fitted(mlp.model)
-frc_ffnn<-forecast(mlp.model,h=47)$mean
+frc_ffnn<-forecast(mlp.model,h=length(split_data(flow_data_xts,20)$test))$mean
 fit_frc_ffnn<-ts(c(fit_ffnn,frc_ffnn),
-                 start=c(2002, 12), 
+                 start=c(format(date_decimal(index(fit_ffnn)[1]), "%Y") %>% as.numeric(),
+                         format(date_decimal(index(fit_ffnn)[1]), "%m") %>% as.numeric()), 
                  end=c(2019, 6),frequency = 12)
 
 
 intersect.datatrain.mlpfit<-ts.intersect(split_data(flow_data_xts,20)$train,
                                          mlp.model$fitted)
 intersect.datatest.mlppred<-ts.intersect(split_data(flow_data_xts,20)$test,
-                                         forecast(mlp.model,h=47)$mean)
+                                         forecast(mlp.model,
+                                                  h=length(split_data(flow_data_xts,20)$test))$mean)
 
 TSrepr::rmse(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2])
 TSrepr::mape(intersect.datatrain.mlpfit[,1],intersect.datatrain.mlpfit[,2])
@@ -118,11 +123,11 @@ compile_ffnn<-ts.intersect(flow_data_xts,fit_frc_ffnn) %>%
 
 compile_ffnn
 
-plot(mlp.model)
-View(mlp.model$net$result.matrix)
-forecast(mlp.model,h=47)
+#plot(mlp.model)
+#View(mlp.model$net$result.matrix)
+#forecast(mlp.model,h=47)
 
-df.mape.oos<-data.frame(fh=numeric(),
+df.mape.oos_ffnn<-data.frame(fh=numeric(),
                         mape=numeric())
 
 for(h in c(1:24))
@@ -130,14 +135,14 @@ for(h in c(1:24))
   intersect_data<-ts.intersect(forecast(mlp.model,h = h)$mean,
                                split_data(flow_data_xts,20)$test[1:h])
                                
-  df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
+  df.mape.oos_ffnn<-rbind(df.mape.oos_ffnn,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],
                                                               intersect_data[,1])
                                             )
   )
 }
 
-df.mape.oos %>% mutate(predicate=case_when(
+df.mape.oos_ffnn %>% mutate(predicate=case_when(
   mape<10 ~ "Akurasi Tinggi",
   mape>=10 & mape<=20 ~ "Baik",
   mape>20 & mape<=50 ~ "Cukup",

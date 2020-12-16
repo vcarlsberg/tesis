@@ -28,7 +28,7 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
   flow_data<-read_data(location,denomination,flow)
   flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                       frequency=12)
-  xreg_xts<-ts(flow_data[,4],start=c(flow_data[1,1],flow_data[1,2]), end=c(2019, 6), 
+  xreg_xts<-ts(flow_data[,c(4:22,24)],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                frequency=12)
   
   lambda<-preprocessing
@@ -37,7 +37,7 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
   
-  arima.model<-auto.arima(train_test_data$train,xreg = xreg_data$train)
+  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc")
   
   result<-ts.intersect(train_test_data$train,arima.model$fitted)
   colnames(result)<-c("train_data","arima_fitted")
@@ -68,10 +68,11 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
                                     weightingModel2=0))
   
   for (fh in 1:24) {
-    frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+    frc.arima<-forecast(arima.model,xreg = xreg_data$test)$mean
     
-    result.pred<-ts.intersect(train_test_data$test[1:fh],frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
-
+    result.pred<-ts.intersect(train_test_data$test,frc.arima) %>%InvBoxCox(lambda=lambda) %>%data.frame()
+    result.pred<-result.pred[1:fh,]
+    
     colnames(result.pred)<-c("test_data","arima_fitted")
     
     compile<-rbind(compile,data.frame(Flow=flow,

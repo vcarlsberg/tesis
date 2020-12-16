@@ -1,4 +1,4 @@
-MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
+MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -29,7 +29,8 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
                           DateExecuted=character(),
                           layer1=numeric(),
                           layer2=numeric(),
-                          error=numeric()
+                          error=numeric(),
+                          inputLayer=numeric()
                           )
     
 
@@ -47,41 +48,47 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
   
   train_test_data<-split_data(flow_data_transformed,20)
   
+  
   if(MLP_layer==1)
   {
     testFun <- function(x)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
                      reps = 1,
-                     lags = 1:60)
-      mlp.model$MSE
+                     lags = lag)
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test))$mean
+                             )
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     }else if(MLP_layer==2){
     testFun <- function(x)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
                      reps = 1,
-                     lags = 1:60)
-      mlp.model$MSE
+                     lags = lag)
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test))$mean
+                             )
+      rmse_oos
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
     
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
-                 lags = 1:60)
+                 lags = lag)
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted)
   colnames(result)<-c("train_data","mlp_fitted")
@@ -98,7 +105,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
                                     MAPE=TSrepr::mape(result[,1],result[,2]),
                                     RMSE=TSrepr::rmse(result[,1],result[,2]),
                                     linearmodel="",
-                                    nonlinearmodel=nonlinearmodel.candidate,
+                                    nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                     preprocessing=preprocessing.candidate,
                                     ID=id,
                                     DateExecuted=dateexecuted,
@@ -126,7 +133,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
                                       MAPE=TSrepr::mape(result.pred[,1],result.pred[,2]),
                                       RMSE=TSrepr::rmse(result.pred[,1],result.pred[,2]),
                                       linearmodel="",
-                                      nonlinearmodel=nonlinearmodel.candidate,
+                                      nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                       preprocessing=preprocessing.candidate,
                                       ID=id,
                                       DateExecuted=dateexecuted,
@@ -138,3 +145,4 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow)
   return(list("modelResult"=compile,"gridsearchNN"=gridsearchNN))
 
 }
+

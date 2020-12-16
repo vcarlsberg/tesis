@@ -6,7 +6,9 @@ source("all_function.R")
 init_run()
 
 
-flow_data<-read_data("Jakarta","K100000","Outflow")
+flow_data<-read_data("Jakarta","K50000","Outflow")
+
+
 
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
@@ -14,7 +16,7 @@ flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c
 flow_data_xts_xreg <- ts(flow_data[,c(4:22,24)],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                          frequency=12)
 
-mlp_gridsearch<-data.frame(HiddenNodes=numeric(),
+ffnnx_gridsearch<-data.frame(HiddenNodes=numeric(),
                            InSampleRMSE=numeric(),
                            InSampleMAPE=numeric(),
                            OutSampleRMSE=numeric(),
@@ -23,11 +25,12 @@ mlp_gridsearch<-data.frame(HiddenNodes=numeric(),
 set.seed(72)
 for(nn in c(1:20))
 {
+  print(nn)
     mlp.model<-mlp(split_data(flow_data_xts,20)$train,
                    hd=c(nn),
                    difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                    reps = 1,
-                   lags = c(1,2,3,4,5,12,24),
+                   lags = c(1,2,3,12,13,14,15),
                    sel.lag = FALSE,
                    xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
                    xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
@@ -71,20 +74,21 @@ mlp_gridsearch %>%
 
 set.seed(72)
 ffnnx.model<-mlp(split_data(flow_data_xts,20)$train,
-               hd=c(4),
+               hd=c(which.min(mlp_gridsearch$OutSampleRMSE)),
                difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                reps = 1,
-               lags = c(1,2,3,4,5,12,24),
+               lags = c(1,2,3,12,13,14,15),
                sel.lag = FALSE,
                xreg =as.data.frame(split_data(flow_data_xts_xreg,20)$train),
                xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
                xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
                )
 fit_ffnnx<-fitted(ffnnx.model)
-frc_ffnnx<-forecast(ffnnx.model,h=47,
+frc_ffnnx<-forecast(ffnnx.model,h=length(split_data(flow_data_xts,20)$test),
                    xreg = as.data.frame(flow_data_xts_xreg))$mean
 fit_frc_ffnnx<-ts(c(fit_ffnnx,frc_ffnnx),
-                 start=c(2001, 11), 
+                 start=c(format(date_decimal(index(fit_ffnnx)[1]), "%Y") %>% as.numeric(),
+                         format(date_decimal(index(fit_ffnnx)[1]), "%m") %>% as.numeric()), 
                  end=c(2019, 6),frequency = 12)
 
 plot(ffnnx.model$net)
@@ -102,8 +106,8 @@ TSrepr::rmse(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
 TSrepr::mape(intersect.datatest.ffnnxpred[,1],intersect.datatest.ffnnxpred[,2])
 
 
-plot(ffnnx.model$net)
-ffnnx.model$net$result.matrix %>% View()
+#plot(ffnnx.model$net)
+#ffnnx.model$net$result.matrix %>% View()
 
 checkresiduals(flow_data_xts-ffnnx.model$fitted)
 
@@ -148,7 +152,7 @@ compile_ffnnx<-ts.intersect(flow_data_xts,fit_frc_ffnnx,fit_frc_ffnn,index(fit_f
   xlab("Bulan-Tahun")
 compile_ffnnx
 
-df.mape.oos<-data.frame(fh=numeric(),
+df.mape.oos_ffnnx<-data.frame(fh=numeric(),
                         mape=numeric())
 
 for(h in c(1:24))
@@ -157,14 +161,14 @@ for(h in c(1:24))
                                         xreg = as.data.frame(flow_data_xts_xreg))$mean,
                                split_data(flow_data_xts,20)$test[1:h])
   
-  df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
+  df.mape.oos_ffnnx<-rbind(df.mape.oos_ffnnx,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],
                                                               intersect_data[,1])
   )
   )
 }
 
-df.mape.oos %>% mutate(predicate=case_when(
+df.mape.oos_ffnnx %>% mutate(predicate=case_when(
   mape<10 ~ "Akurasi Tinggi",
   mape>=10 & mape<=20 ~ "Baik",
   mape>20 & mape<=50 ~ "Cukup",

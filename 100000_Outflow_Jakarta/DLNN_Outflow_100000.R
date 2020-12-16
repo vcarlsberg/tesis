@@ -6,7 +6,7 @@ source("all_function.R")
 init_run()
 
 
-flow_data<-read_data("Jakarta","K100000","Outflow")
+flow_data<-read_data("Jakarta","K50000","Outflow")
 
 flow_data_xts <- ts(flow_data[,3],start=c(flow_data[1,1], flow_data[1,2]), end=c(2019, 6), 
                     frequency=12)
@@ -35,7 +35,7 @@ for(nn1 in c(1:20))
                         hd=c(nn1,nn2),
                         difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                         reps = 1,
-                        lags = c(1,12,13,24,25,36,37),
+                        lags = c(1,12,24,13,25,2,14,26),
                         sel.lag = FALSE)
         
         dlnn.frc<-forecast(dlnn.model,h=47)$mean
@@ -64,20 +64,24 @@ for(nn1 in c(1:20))
   }
 }
 
+
+
 dlnn.model<-mlp(split_data(flow_data_xts,20)$train,
-                hd=c(2,3),
+                hd=c(dlnn_gridsearch$HiddenNodes1[which.min(dlnn_gridsearch$OutSampleRMSE)],
+                     dlnn_gridsearch$HiddenNodes2[which.min(dlnn_gridsearch$OutSampleRMSE)]),
                 difforder = 0,outplot = TRUE,retrain = TRUE,allow.det.season = FALSE,
                 reps = 1,
-                lags = c(1,12,13,24,25,36,37),
+                lags = c(1,12,24,13,25,2,14,26),
                 sel.lag = FALSE)
 dlnn.model$MSE
 
 #plot insample, outsample data, fitted & forecast data
 set.seed(72)
 fit_dlnn<-fitted(dlnn.model)
-frc_dlnn<-forecast(dlnn.model,h=47)$mean
+frc_dlnn<-forecast(dlnn.model,h=length(split_data(flow_data_xts,20)$test))$mean
 fit_frc_dlnn<-ts(c(fit_dlnn,frc_dlnn),
-                 start=c(2002, 12), 
+                 start=c(format(date_decimal(index(fit_ffnn)[1]), "%Y") %>% as.numeric(),
+                         format(date_decimal(index(fit_ffnn)[1]), "%m") %>% as.numeric()), 
                  end=c(2019, 6),frequency = 12)
 
 
@@ -106,14 +110,14 @@ dlnn_gridsearch %>% group_by(HiddenNodes2) %>%
 
 
 
-plot(dlnn.model$net)
-write_csv(as.data.frame(dlnn.model$net$result.matrix),"dlnn.model$net$result.matrix.csv")
+#plot(dlnn.model$net)
+#write_csv(as.data.frame(dlnn.model$net$result.matrix),"dlnn.model$net$result.matrix.csv")
 
 #residual analysis
-Box.test(flow_data_xts-dlnn.model$fitted,lag = 36)
+#Box.test(flow_data_xts-dlnn.model$fitted,lag = 36)
 
 #cek oos vs fh
-df.mape.oos<-data.frame(fh=numeric(),
+df.mape.oos_dlnn<-data.frame(fh=numeric(),
                         mape=numeric())
 
 for(h in c(1:24))
@@ -123,14 +127,14 @@ for(h in c(1:24))
   intersect_data<-ts.intersect(dlnn.frc,
                                split_data(flow_data_xts,20)$test[1:h])
   
-  df.mape.oos<-rbind(df.mape.oos,data.frame(fh=h,
+  df.mape.oos_dlnn<-rbind(df.mape.oos_dlnn,data.frame(fh=h,
                                             mape=TSrepr::mape(intersect_data[,2],
                                                               intersect_data[,1])
   )
   )
 }
 
-df.mape.oos %>% mutate(predicate=case_when(
+df.mape.oos_dlnn %>% mutate(predicate=case_when(
   mape<10 ~ "Akurasi Tinggi",
   mape>=10 & mape<=20 ~ "Baik",
   mape>20 & mape<=50 ~ "Cukup",

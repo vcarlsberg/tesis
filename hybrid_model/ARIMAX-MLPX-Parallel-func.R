@@ -1,4 +1,4 @@
-ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow)
+ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
 {
   source("~/tesis/all_function.R")
   init_run()
@@ -31,7 +31,8 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                DateExecuted=character(),
                                layer1=numeric(),
                                layer2=numeric(),
-                               error=numeric()
+                               error=numeric(),
+                               inputLayer=numeric()
     )
     
   
@@ -41,7 +42,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
   
   flow_data_xts <- ts(data[,3],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                       frequency=12)
-  xreg_xts<-ts(data[,4],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
+  xreg_xts<-ts(data[,c(4:22,24)],start=c(data[1,1],data[1,2]), end=c(2019, 6), 
                frequency=12)
   
 
@@ -51,7 +52,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
   
-  arima.model<-auto.arima(train_test_data$train,xreg = xreg_data$train)
+  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc")
   
   if(MLP_layer==1)
   {
@@ -59,17 +60,21 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
                      reps = 1,
-                     lags = 1:60,
+                     lags = lag,
+                     sel.lag = FALSE,
                      xreg =as.data.frame(xreg_data$train),
-                     xreg.lags=list(0),xreg.keep=list(TRUE)
+                     xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                     xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T)
       )
-      mlp.model$MSE
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test),
+                                        xreg=as.data.frame(xreg_xts))$mean)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20))
     
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
     
@@ -79,16 +84,20 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
                      reps = 1,
-                     lags = 1:60,
+                     lags = lag,
+                     sel.lag = FALSE,
                      xreg =as.data.frame(xreg_data$train),
-                     xreg.lags=list(0),xreg.keep=list(TRUE))
-      mlp.model$MSE
+                     xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                     xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
+      rmse_oos<-TSrepr::rmse(x=train_test_data$test,
+                             y=forecast(mlp.model,h=length(train_test_data$test),
+                                        xreg=as.data.frame(xreg_xts))$mean)
     }
     sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
     
-    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted)
+    gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
-    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted")
+    colnames(gs.result)<-c("layer1","layer2","error","ID","DateExecuted","inputLayer")
     gridsearchNN<-rbind(gridsearchNN,gs.result)
     
     
@@ -96,9 +105,11 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
-                 lags = 1:60,
+                 lags = lag,
+                 sel.lag = FALSE,
                  xreg =as.data.frame(xreg_data$train),
-                 xreg.lags=list(0),xreg.keep=list(TRUE))
+                 xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                 xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted)
   colnames(result)<-c("train_data","mlp_fitted","arima_fitted")
@@ -129,7 +140,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                         MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         linearmodel=linearmodel.candidate,
-                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                         preprocessing=preprocessing.candidate,
                                         ID=id,
                                         DateExecuted=dateexecuted,
@@ -139,10 +150,10 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       
       for (fh in 1:24) {
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
-        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+        frc.arima<-forecast(arima.model,xreg = xreg_data$test)$mean[1:fh]
         
         mlp.mean<-frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
-        arima.mean<-frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-frc.arima%>%InvBoxCox(lambda=lambda) 
         test.data<-train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
         
         result_pred_weight<-ts.intersect(test.data,0.5*mlp.mean,0.5*arima.mean)
@@ -157,7 +168,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                           MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           linearmodel=linearmodel.candidate,
-                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                           preprocessing=preprocessing.candidate,
                                           ID=id,
                                           DateExecuted=dateexecuted,
@@ -185,7 +196,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                         MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         linearmodel=linearmodel.candidate,
-                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                         preprocessing=preprocessing.candidate,
                                         ID=id,
                                         DateExecuted=dateexecuted,
@@ -195,10 +206,10 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       
       for (fh in 1:24) {
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
-        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+        frc.arima<-forecast(arima.model,xreg = xreg_data$test)$mean[1:fh]
         
         mlp.mean<-frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
-        arima.mean<-frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-frc.arima%>%InvBoxCox(lambda=lambda) 
         test.data<-train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda)
         
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
@@ -213,7 +224,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                           MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           linearmodel=linearmodel.candidate,
-                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                           preprocessing=preprocessing.candidate,
                                           ID=id,
                                           DateExecuted=dateexecuted,
@@ -251,7 +262,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                         MAPE=TSrepr::mape(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         RMSE=TSrepr::rmse(result_weight[,1],result_weight[,2]+result_weight[,3]),
                                         linearmodel=linearmodel.candidate,
-                                        nonlinearmodel=nonlinearmodel.candidate,
+                                        nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                         preprocessing=preprocessing.candidate,
                                         ID=id,
                                         DateExecuted=dateexecuted,
@@ -261,10 +272,10 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       
       for (fh in 1:24) {
         frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
-        frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+        frc.arima<-forecast(arima.model,xreg = xreg_data$test)$mean[1:fh]
         
         mlp.mean<-frc.mlp$mean%>%InvBoxCox(lambda=lambda) 
-        arima.mean<-frc.arima$mean%>%InvBoxCox(lambda=lambda) 
+        arima.mean<-frc.arima%>%InvBoxCox(lambda=lambda) 
         test.data<-train_test_data$test[1:fh]%>%InvBoxCox(lambda=lambda) 
         
         result_pred_weight<-ts.intersect(test.data,weight1*mlp.mean,weight2*arima.mean)
@@ -279,7 +290,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
                                           MAPE=TSrepr::mape(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           RMSE=TSrepr::rmse(result_pred_weight[,1],result_pred_weight[,2]+result_pred_weight[,3]),
                                           linearmodel=linearmodel.candidate,
-                                          nonlinearmodel=nonlinearmodel.candidate,
+                                          nonlinearmodel=paste0(length(lag),"-",nonlinearmodel.candidate,"-",1),
                                           preprocessing=preprocessing.candidate,
                                           ID=id,
                                           DateExecuted=dateexecuted,
