@@ -112,9 +112,10 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   residual<-train_test_data$train-mlp.model$fitted
   
   residual<-ts.intersect(residual,xreg_data$train)
+  colnames(residual)<-c("residual",colnames(xreg_data$train))
   
   
-  arima.model<-auto.arima(residual[,1],xreg = residual[,2],d=0,D=0,ic = "aicc")
+  arima.model<-auto.arima(residual[,1],xreg = residual[,c(-1)],d=0,D=0,ic = "aicc")
   
   
   
@@ -147,9 +148,9 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   
   for (fh in 1:24) {
     frc.mlp<-forecast(mlp.model,h=fh,xreg = as.data.frame(xreg_xts))
-    frc.arima<-forecast(arima.model,h=fh,xreg = xreg_data$test[1:fh])
+    frc.arima<-(forecast(arima.model,xreg = xreg_data$test)$mean)[1:fh]
     
-    result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean,frc.arima$mean) %>%InvBoxCox(lambda=lambda)  
+    result.pred<-ts.intersect(train_test_data$test[1:fh],frc.mlp$mean,frc.arima) %>%InvBoxCox(lambda=lambda)  
     colnames(result.pred)<-c("train_data","mlp_fitted","arima_fitted")
     
     result.pred<-ts.intersect(result.pred[,1],result.pred[,2]+result.pred[,3])

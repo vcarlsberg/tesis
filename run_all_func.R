@@ -50,11 +50,11 @@ for (flow in c("Inflow"))
 {
   for (location in c("Jakarta"))
   {
-    for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
+    for (denomination in c("K50000"))
     {
       for (preprocessing in c(1))
       {
-        for (MLP_layer in c(1,2))
+        for (MLP_layer in c(1))
         {
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_Individual"))
@@ -123,10 +123,10 @@ for (flow in c("Inflow"))
           },error=function(e){
             print(e)
           })
-          
+
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Seri"))
-            
+
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMA_MLP_Series(preprocessing = preprocessing,
@@ -140,10 +140,10 @@ for (flow in c("Inflow"))
           },error=function(e){
             print(e)
           })
-          
+
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Series"))
-            
+
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMAX_MLPX_Series(preprocessing = preprocessing,
@@ -157,10 +157,10 @@ for (flow in c("Inflow"))
           },error=function(e){
             print(e)
           })
-          
+
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Seri"))
-            
+
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLP_ARIMA_Series(preprocessing = preprocessing,
