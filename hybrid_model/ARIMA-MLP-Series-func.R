@@ -87,7 +87,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20),method = "snow",cl = 6,printDetail = TRUE)
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
 	  
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
