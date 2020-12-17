@@ -87,7 +87,7 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   }
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
-                 lags = lag,
+                 lags = lag,reps = 1,
                  sel.lag = FALSE)
   
   
