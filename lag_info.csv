@@ -1,0 +1,337 @@
+Flow,Model,Location,Denomination,linearmodel,Lags
+Outflow,ARIMA-Individual,Bandung,K100000,"ARIMA(2,1,1)(0,1,0)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Bandung,K100000,"Regression with ARIMA(4,0,0)(1,0,0)[12] errors",1 2 3 4 12 13 14 15 16
+Outflow,ARIMA-Individual,Bandung,K50000,"ARIMA(1,0,2)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Bandung,K50000,"Regression with ARIMA(4,0,0)(1,0,1)[12] errors",1 2 3 4 12 13 14 15 16
+Outflow,ARIMA-Individual,Bandung,K20000,"ARIMA(1,1,1)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Bandung,K20000,"Regression with ARIMA(3,0,0) errors",1 2 3
+Outflow,ARIMA-Individual,Bandung,K10000,"ARIMA(4,0,0)(0,0,2)[12] with non-zero mean",1 2 3 4
+Outflow,ARIMAX-Individual,Bandung,K10000,"Regression with ARIMA(2,0,2)(0,0,1)[12] errors",1 2
+Outflow,ARIMA-Individual,Bandung,K5000,"ARIMA(0,0,0)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Bandung,K5000,"Regression with ARIMA(2,0,0)(1,0,2)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Bandung,K2000,"ARIMA(0,0,1)(2,0,1)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Bandung,K2000,"Regression with ARIMA(0,0,1)(1,0,0)[12] errors",12
+Outflow,ARIMA-Individual,Bandung,K1000,"ARIMA(0,1,1)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Bandung,K1000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Cirebon,K100000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Cirebon,K100000,"Regression with ARIMA(2,0,1)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Cirebon,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Cirebon,K50000,"Regression with ARIMA(4,0,0)(1,0,0)[12] errors",1 2 3 4 12 13 14 15 16
+Outflow,ARIMA-Individual,Cirebon,K20000,"ARIMA(0,1,1)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Cirebon,K20000,"Regression with ARIMA(2,0,1)(0,0,1)[12] errors",1 2
+Outflow,ARIMA-Individual,Cirebon,K10000,"ARIMA(1,0,1)(0,0,1)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Cirebon,K10000,"Regression with ARIMA(1,0,1)(0,0,2)[12] errors",1
+Outflow,ARIMA-Individual,Cirebon,K5000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Cirebon,K5000,"Regression with ARIMA(2,0,0)(1,0,1)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Cirebon,K2000,"ARIMA(0,0,1)(2,0,0)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Cirebon,K2000,"Regression with ARIMA(0,0,0) errors",1 2 3 4 5 6 7 8 9 10 11 12
+Outflow,ARIMA-Individual,Cirebon,K1000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Cirebon,K1000,"Regression with ARIMA(3,0,0)(1,0,2)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Jember,K100000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Jember,K100000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Outflow,ARIMA-Individual,Jember,K50000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Jember,K50000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Jember,K20000,"ARIMA(2,0,0)(1,0,0)[12] with non-zero mean",1 2 12 13 14
+Outflow,ARIMAX-Individual,Jember,K20000,"Regression with ARIMA(1,0,3)(1,0,1)[12] errors",1 12
+Outflow,ARIMA-Individual,Jember,K10000,"ARIMA(1,0,1)(2,0,2)[12] with non-zero mean",1 12 13 24 25
+Outflow,ARIMAX-Individual,Jember,K10000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Jember,K5000,"ARIMA(1,0,0)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Jember,K5000,"Regression with ARIMA(2,0,0)(1,0,1)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Jember,K2000,"ARIMA(0,0,0)(2,0,0)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Jember,K2000,"Regression with ARIMA(0,0,1)(1,0,0)[12] errors",12
+Outflow,ARIMA-Individual,Jember,K1000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Jember,K1000,"Regression with ARIMA(3,0,1)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Kediri,K100000,"ARIMA(0,0,0)(1,0,1)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Kediri,K100000,"Regression with ARIMA(3,0,1)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Kediri,K50000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Kediri,K50000,"Regression with ARIMA(3,0,1)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Kediri,K20000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Kediri,K20000,"Regression with ARIMA(2,0,1)(1,0,1)[12] errors",1 2 12
+Outflow,ARIMA-Individual,Kediri,K10000,"ARIMA(1,0,2)(2,0,2)[12] with non-zero mean",1 12 13 24 25
+Outflow,ARIMAX-Individual,Kediri,K10000,"Regression with ARIMA(1,0,0)(2,0,2)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Kediri,K5000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Kediri,K5000,"Regression with ARIMA(2,0,0)(1,0,1)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Kediri,K2000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Kediri,K2000,"Regression with ARIMA(0,0,0) errors",1 2 3 4 5 6 7 8 9 10 11 12
+Outflow,ARIMA-Individual,Kediri,K1000,"ARIMA(2,0,1)(0,0,2)[12] with non-zero mean",1 2
+Outflow,ARIMAX-Individual,Kediri,K1000,"Regression with ARIMA(1,0,0)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Malang,K100000,"ARIMA(1,0,2)(1,0,1)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Malang,K100000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Malang,K50000,"ARIMA(2,1,1)(0,1,0)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Malang,K50000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Malang,K20000,"ARIMA(2,1,1)(0,1,2)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Malang,K20000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Outflow,ARIMA-Individual,Malang,K10000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Malang,K10000,"Regression with ARIMA(4,0,0)(1,0,0)[12] errors",1 2 3 4 12 13 14 15 16
+Outflow,ARIMA-Individual,Malang,K5000,"ARIMA(0,0,0)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Malang,K5000,"Regression with ARIMA(2,0,0)(1,0,2)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Malang,K2000,"ARIMA(0,0,0)(2,0,0)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Malang,K2000,"Regression with ARIMA(0,0,0)(0,0,1)[12] errors",12
+Outflow,ARIMA-Individual,Malang,K1000,"ARIMA(1,0,0)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Malang,K1000,"Regression with ARIMA(1,0,2)(2,0,1)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Purwokerto,K100000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Purwokerto,K100000,"Regression with ARIMA(3,0,1)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Purwokerto,K50000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Purwokerto,K50000,"Regression with ARIMA(3,0,1)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Purwokerto,K20000,"ARIMA(0,1,1)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Purwokerto,K20000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Outflow,ARIMA-Individual,Purwokerto,K10000,"ARIMA(2,0,0)(2,0,2)[12] with non-zero mean",1 2 12 13 14 24 25 26
+Outflow,ARIMAX-Individual,Purwokerto,K10000,"Regression with ARIMA(1,0,1)(0,0,2)[12] errors",1
+Outflow,ARIMA-Individual,Purwokerto,K5000,"ARIMA(0,0,1)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Purwokerto,K5000,"Regression with ARIMA(0,0,1)(2,0,0)[12] errors",12 23
+Outflow,ARIMA-Individual,Purwokerto,K2000,"ARIMA(0,0,1)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Purwokerto,K2000,"Regression with ARIMA(1,0,0)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Purwokerto,K1000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Purwokerto,K1000,"Regression with ARIMA(1,0,0)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Semarang,K100000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Semarang,K100000,"Regression with ARIMA(3,0,0)(2,0,1)[12] errors",1 2 3 12 13 14 15 24 25 26 27
+Outflow,ARIMA-Individual,Semarang,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Semarang,K50000,"Regression with ARIMA(2,0,1)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Semarang,K20000,"ARIMA(0,1,1)(0,1,0)[12]",1 12 13
+Outflow,ARIMAX-Individual,Semarang,K20000,"Regression with ARIMA(1,0,1)(0,0,2)[12] errors",1
+Outflow,ARIMA-Individual,Semarang,K10000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Semarang,K10000,"Regression with ARIMA(1,0,1)(0,0,1)[12] errors",1
+Outflow,ARIMA-Individual,Semarang,K5000,"ARIMA(1,0,2)(1,0,2)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Semarang,K5000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Semarang,K2000,"ARIMA(2,0,2)(2,0,1)[12] with non-zero mean",1 2 12 13 14 24 25 26
+Outflow,ARIMAX-Individual,Semarang,K2000,"Regression with ARIMA(1,0,0)(0,0,1)[12] errors",1
+Outflow,ARIMA-Individual,Semarang,K1000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Semarang,K1000,"Regression with ARIMA(2,0,2)(1,0,0)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Solo,K100000,"ARIMA(2,1,1)(0,1,2)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Solo,K100000,"Regression with ARIMA(4,0,0)(2,0,1)[12] errors",1 2 3 4 12 13 14 15 16 24 25 26 27 28
+Outflow,ARIMA-Individual,Solo,K50000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Outflow,ARIMAX-Individual,Solo,K50000,"Regression with ARIMA(2,0,1)(0,0,1)[12] errors",1 2
+Outflow,ARIMA-Individual,Solo,K20000,"ARIMA(3,1,1)(0,1,2)[12]",1 4 12 13 16
+Outflow,ARIMAX-Individual,Solo,K20000,"Regression with ARIMA(2,0,1)(0,0,1)[12] errors",1 2
+Outflow,ARIMA-Individual,Solo,K10000,"ARIMA(2,0,1)(0,0,2)[12] with non-zero mean",1 2
+Outflow,ARIMAX-Individual,Solo,K10000,"Regression with ARIMA(1,0,1)(0,0,1)[12] errors",1
+Outflow,ARIMA-Individual,Solo,K5000,"ARIMA(0,0,0)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Solo,K5000,"Regression with ARIMA(3,0,0)(1,0,2)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Solo,K2000,"ARIMA(1,0,1)(1,0,1)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Solo,K2000,"Regression with ARIMA(0,0,1)(2,0,0)[12] errors",12 23
+Outflow,ARIMA-Individual,Solo,K1000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Solo,K1000,"Regression with ARIMA(2,0,2)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Surabaya,K100000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
+Outflow,ARIMAX-Individual,Surabaya,K100000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Outflow,ARIMA-Individual,Surabaya,K50000,"ARIMA(1,0,2)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Surabaya,K50000,"Regression with ARIMA(2,0,1)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Surabaya,K20000,"ARIMA(3,0,1)(1,0,1)[12] with zero mean",1 2 3 12 13 14 15
+Outflow,ARIMAX-Individual,Surabaya,K20000,"Regression with ARIMA(1,0,1)(0,0,1)[12] errors",1
+Outflow,ARIMA-Individual,Surabaya,K10000,"ARIMA(2,0,0)(1,0,0)[12] with non-zero mean",1 2 12 13 14
+Outflow,ARIMAX-Individual,Surabaya,K10000,"Regression with ARIMA(2,0,0)(1,0,0)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Surabaya,K5000,"ARIMA(0,0,0)(1,0,0)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Surabaya,K5000,"Regression with ARIMA(2,0,0)(1,0,0)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Surabaya,K2000,"ARIMA(1,0,1)(1,0,1)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Surabaya,K2000,"Regression with ARIMA(0,0,0) errors",1 2 3 4 5 6 7 8 9 10 11 12
+Outflow,ARIMA-Individual,Surabaya,K1000,"ARIMA(1,0,2)(0,0,1)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Surabaya,K1000,"Regression with ARIMA(3,0,1)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Tasikmalaya,K100000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Outflow,ARIMAX-Individual,Tasikmalaya,K100000,"Regression with ARIMA(3,0,0)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Tasikmalaya,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Tasikmalaya,K50000,"Regression with ARIMA(2,0,1)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Tasikmalaya,K20000,"ARIMA(0,1,1)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Tasikmalaya,K20000,"Regression with ARIMA(1,0,1)(0,0,2)[12] errors",1
+Outflow,ARIMA-Individual,Tasikmalaya,K10000,"ARIMA(3,1,1)(2,1,0)[12]",1 4 12 13 16 36 37 40
+Outflow,ARIMAX-Individual,Tasikmalaya,K10000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Tasikmalaya,K5000,"ARIMA(0,0,1)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Tasikmalaya,K5000,"Regression with ARIMA(2,0,0)(1,0,2)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Tasikmalaya,K2000,"ARIMA(0,0,1)(2,0,1)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Tasikmalaya,K2000,"Regression with ARIMA(1,0,0)(2,0,1)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Tasikmalaya,K1000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Tasikmalaya,K1000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Yogyakarta,K100000,"ARIMA(0,0,0)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Yogyakarta,K100000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Outflow,ARIMA-Individual,Yogyakarta,K50000,"ARIMA(1,0,2)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Yogyakarta,K50000,"Regression with ARIMA(2,0,1)(2,0,1)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Yogyakarta,K20000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Yogyakarta,K20000,"Regression with ARIMA(1,0,1)(1,0,0)[12] errors",1 12
+Outflow,ARIMA-Individual,Yogyakarta,K10000,"ARIMA(1,0,1)(1,0,2)[12] with non-zero mean",1 12 13
+Outflow,ARIMAX-Individual,Yogyakarta,K10000,"Regression with ARIMA(2,0,0)(1,0,1)[12] errors",1 2 12 13 14
+Outflow,ARIMA-Individual,Yogyakarta,K5000,"ARIMA(0,0,0)(0,0,2)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Yogyakarta,K5000,"Regression with ARIMA(1,0,0)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Yogyakarta,K2000,"ARIMA(0,0,1)(1,0,2)[12] with non-zero mean",12
+Outflow,ARIMAX-Individual,Yogyakarta,K2000,"Regression with ARIMA(1,0,0)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Yogyakarta,K1000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Outflow,ARIMAX-Individual,Yogyakarta,K1000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Outflow,ARIMA-Individual,Jakarta,K100000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Jakarta,K100000,"Regression with ARIMA(5,0,0)(0,0,2)[12] errors",1 2 3 4 5
+Outflow,ARIMA-Individual,Jakarta,K50000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Outflow,ARIMAX-Individual,Jakarta,K50000,"Regression with ARIMA(3,0,1)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Outflow,ARIMA-Individual,Jakarta,K20000,"ARIMA(1,0,1)(2,0,1)[12] with non-zero mean",1 12 13 24 25
+Outflow,ARIMAX-Individual,Jakarta,K20000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Outflow,ARIMA-Individual,Jakarta,K10000,"ARIMA(0,1,3)(0,1,1)[12]",1 12 13
+Outflow,ARIMAX-Individual,Jakarta,K10000,"Regression with ARIMA(5,0,0) errors",1 2 3 4 5
+Outflow,ARIMA-Individual,Jakarta,K5000,"ARIMA(2,0,2)(1,0,0)[12] with non-zero mean",1 2 12 13 14
+Outflow,ARIMAX-Individual,Jakarta,K5000,"Regression with ARIMA(2,0,2)(0,0,1)[12] errors",1 2
+Outflow,ARIMA-Individual,Jakarta,K2000,"ARIMA(0,0,2)(2,0,0)[12] with non-zero mean",12 24
+Outflow,ARIMAX-Individual,Jakarta,K2000,"Regression with ARIMA(2,0,0)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Outflow,ARIMA-Individual,Jakarta,K1000,"ARIMA(0,1,4)(0,1,0)[12]",1 12 13
+Outflow,ARIMAX-Individual,Jakarta,K1000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Bandung,K100000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Bandung,K100000,"Regression with ARIMA(3,0,1)(0,0,1)[12] errors",1 2 3
+Inflow,ARIMA-Individual,Bandung,K50000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
+Inflow,ARIMAX-Individual,Bandung,K50000,"Regression with ARIMA(1,0,3)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Bandung,K20000,"ARIMA(2,1,2)(2,1,0)[12]",1 3 12 13 15 36 37 39
+Inflow,ARIMAX-Individual,Bandung,K20000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Bandung,K10000,"ARIMA(2,1,0)(0,1,2)[12]",1 3 12 13 15
+Inflow,ARIMAX-Individual,Bandung,K10000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Bandung,K5000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Bandung,K5000,"Regression with ARIMA(1,0,1)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Bandung,K2000,"ARIMA(1,0,1)(1,0,0)[12] with zero mean",1 12 13
+Inflow,ARIMAX-Individual,Bandung,K2000,"Regression with ARIMA(1,0,0)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Bandung,K1000,"ARIMA(0,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Bandung,K1000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Cirebon,K100000,"ARIMA(0,1,1)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Cirebon,K100000,"Regression with ARIMA(3,0,0)(0,0,1)[12] errors",1 2 3
+Inflow,ARIMA-Individual,Cirebon,K50000,"ARIMA(0,1,2)(1,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Cirebon,K50000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Cirebon,K20000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
+Inflow,ARIMAX-Individual,Cirebon,K20000,"Regression with ARIMA(2,0,2)(1,0,0)[12] errors",1 2 12 13 14
+Inflow,ARIMA-Individual,Cirebon,K10000,"ARIMA(1,1,2)(2,1,0)[12]",1 12 13 24 25
+Inflow,ARIMAX-Individual,Cirebon,K10000,"Regression with ARIMA(5,0,1)(2,0,2)[12] errors",1 2 3 4 5 12 13 14 15 16 17 24 25 25 26 27 28 29
+Inflow,ARIMA-Individual,Cirebon,K5000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Cirebon,K5000,"Regression with ARIMA(4,0,2)(2,0,2)[12] errors",1 2 3 4 12 13 14 15 16 24 25 26 27 28
+Inflow,ARIMA-Individual,Cirebon,K2000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Cirebon,K2000,"Regression with ARIMA(1,0,0) errors",1
+Inflow,ARIMA-Individual,Cirebon,K1000,"ARIMA(1,0,2)(1,0,1)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Cirebon,K1000,"Regression with ARIMA(1,0,3)(0,0,2)[12] errors",1
+Inflow,ARIMA-Individual,Jember,K100000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Jember,K100000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Jember,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Jember,K50000,"Regression with ARIMA(4,0,0)(1,0,1)[12] errors",1 2 3 4 12 13 14 15 16
+Inflow,ARIMA-Individual,Jember,K20000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Jember,K20000,"Regression with ARIMA(2,0,2)(1,0,1)[12] errors",1 2 12 13 14
+Inflow,ARIMA-Individual,Jember,K10000,"ARIMA(4,0,0)(2,0,1)[12] with non-zero mean",1 2 3 4 12 13 14 15 16 24 25 26 27 28
+Inflow,ARIMAX-Individual,Jember,K10000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Jember,K5000,"ARIMA(2,0,2)(1,0,1)[12] with non-zero mean",1 2 12 13 14
+Inflow,ARIMAX-Individual,Jember,K5000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Jember,K2000,"ARIMA(1,0,1) with non-zero mean",1
+Inflow,ARIMAX-Individual,Jember,K2000,"Regression with ARIMA(0,0,1) errors",1
+Inflow,ARIMA-Individual,Jember,K1000,"ARIMA(1,0,2)(1,0,2)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Jember,K1000,"Regression with ARIMA(1,0,1)(1,0,1)[12] errors",1 12
+Inflow,ARIMA-Individual,Kediri,K100000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Kediri,K100000,"Regression with ARIMA(5,0,2)(1,0,0)[12] errors",1 2 3 4 5 12 13 14 15 16 17
+Inflow,ARIMA-Individual,Kediri,K50000,"ARIMA(1,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Kediri,K50000,"Regression with ARIMA(2,0,2)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Inflow,ARIMA-Individual,Kediri,K20000,"ARIMA(1,0,2)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Kediri,K20000,"Regression with ARIMA(3,0,0)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Kediri,K10000,"ARIMA(2,1,2)(0,1,2)[12]",1 3 12 13 15
+Inflow,ARIMAX-Individual,Kediri,K10000,"Regression with ARIMA(2,0,3)(1,0,1)[12] errors",1 2 12 13 14
+Inflow,ARIMA-Individual,Kediri,K5000,"ARIMA(3,0,2)(1,0,0)[12] with non-zero mean",1 2 3 12 13 14 15
+Inflow,ARIMAX-Individual,Kediri,K5000,"Regression with ARIMA(0,0,1)(1,0,0)[12] errors",12
+Inflow,ARIMA-Individual,Kediri,K2000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Kediri,K2000,"Regression with ARIMA(0,0,1) errors",1
+Inflow,ARIMA-Individual,Kediri,K1000,"ARIMA(1,0,2)(1,0,2)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Kediri,K1000,"Regression with ARIMA(1,0,0)(1,0,0)[12] errors",1 12 13
+Inflow,ARIMA-Individual,Malang,K100000,"ARIMA(0,1,1)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Malang,K100000,"Regression with ARIMA(1,0,1)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Malang,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Malang,K50000,"Regression with ARIMA(4,0,1)(1,0,0)[12] errors",1 2 3 4 12 13 14 15 16
+Inflow,ARIMA-Individual,Malang,K20000,"ARIMA(1,0,2)(1,0,0)[12] with zero mean",1 12 13
+Inflow,ARIMAX-Individual,Malang,K20000,"Regression with ARIMA(1,0,2)(1,0,1)[12] errors",1 12
+Inflow,ARIMA-Individual,Malang,K10000,"ARIMA(1,1,3)(2,1,0)[12]",1 12 13 24 25
+Inflow,ARIMAX-Individual,Malang,K10000,"Regression with ARIMA(3,0,3)(2,0,0)[12] errors",1 2 3 12 13 14 15 24 25 26 27
+Inflow,ARIMA-Individual,Malang,K5000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Malang,K5000,"Regression with ARIMA(0,0,2)(1,0,0)[12] errors",12
+Inflow,ARIMA-Individual,Malang,K2000,"ARIMA(1,0,0)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Malang,K2000,"Regression with ARIMA(1,0,0) errors",1
+Inflow,ARIMA-Individual,Malang,K1000,"ARIMA(2,0,3)(2,0,0)[12] with non-zero mean",1 2 12 13 14 24 25 26
+Inflow,ARIMAX-Individual,Malang,K1000,"Regression with ARIMA(1,0,2)(0,0,2)[12] errors",1
+Inflow,ARIMA-Individual,Purwokerto,K100000,"ARIMA(0,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Purwokerto,K100000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Inflow,ARIMA-Individual,Purwokerto,K50000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Purwokerto,K50000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Purwokerto,K20000,"ARIMA(2,1,1)(2,1,0)[12]",1 2 12 13 24
+Inflow,ARIMAX-Individual,Purwokerto,K20000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Purwokerto,K10000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Purwokerto,K10000,"Regression with ARIMA(3,0,0)(2,0,0)[12] errors",1 2 3 12 13 14 15 24 25 26 27
+Inflow,ARIMA-Individual,Purwokerto,K5000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Purwokerto,K5000,"Regression with ARIMA(1,0,0)(1,0,1)[12] errors",1 12 13
+Inflow,ARIMA-Individual,Purwokerto,K2000,"ARIMA(1,0,0)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Purwokerto,K2000,"Regression with ARIMA(1,0,0) errors",1
+Inflow,ARIMA-Individual,Purwokerto,K1000,"ARIMA(1,0,1)(1,0,2)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Purwokerto,K1000,"Regression with ARIMA(1,0,1)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Semarang,K100000,"ARIMA(0,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Semarang,K100000,"Regression with ARIMA(0,0,0)(1,0,0)[12] errors",12
+Inflow,ARIMA-Individual,Semarang,K50000,"ARIMA(0,0,0)(1,0,1)[12] with non-zero mean",12
+Inflow,ARIMAX-Individual,Semarang,K50000,"Regression with ARIMA(2,0,1)(0,0,1)[12] errors",1 2
+Inflow,ARIMA-Individual,Semarang,K20000,"ARIMA(3,1,2)(0,1,2)[12]",1 4 12 13 16
+Inflow,ARIMAX-Individual,Semarang,K20000,"Regression with ARIMA(1,0,2)(1,0,1)[12] errors",1 12
+Inflow,ARIMA-Individual,Semarang,K10000,"ARIMA(3,1,0)(2,1,2)[12]",1 4 12 13 16 36 37 40
+Inflow,ARIMAX-Individual,Semarang,K10000,"Regression with ARIMA(3,0,1)(2,0,1)[12] errors",1 2 3 12 13 14 15 24 25 26 27
+Inflow,ARIMA-Individual,Semarang,K5000,"ARIMA(1,0,2)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Semarang,K5000,"Regression with ARIMA(1,0,0)(0,0,2)[12] errors",1
+Inflow,ARIMA-Individual,Semarang,K2000,"ARIMA(1,0,0)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Semarang,K2000,"Regression with ARIMA(1,0,0)(1,0,0)[12] errors",1 12 13
+Inflow,ARIMA-Individual,Semarang,K1000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Semarang,K1000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Inflow,ARIMA-Individual,Solo,K100000,"ARIMA(1,1,1)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Solo,K100000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Solo,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Solo,K50000,"Regression with ARIMA(1,0,2)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Solo,K20000,"ARIMA(3,1,1)(0,1,2)[12]",1 4 12 13 16
+Inflow,ARIMAX-Individual,Solo,K20000,"Regression with ARIMA(3,0,0)(2,0,2)[12] errors",1 2 3 12 13 14 15 24 25 26 27
+Inflow,ARIMA-Individual,Solo,K10000,"ARIMA(3,1,2)(1,1,2)[12]",1 4 12 13 16 24 25 28
+Inflow,ARIMAX-Individual,Solo,K10000,"Regression with ARIMA(2,0,2)(2,0,1)[12] errors",1 2 12 13 14 24 25 26
+Inflow,ARIMA-Individual,Solo,K5000,"ARIMA(1,0,0)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Solo,K5000,"Regression with ARIMA(1,0,0)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Solo,K2000,"ARIMA(2,0,0)(2,0,0)[12] with non-zero mean",1 2 12 13 14 24 25 26
+Inflow,ARIMAX-Individual,Solo,K2000,"Regression with ARIMA(1,0,0)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Solo,K1000,"ARIMA(3,0,1)(2,0,0)[12] with non-zero mean",1 2 3 12 13 14 15 24 25 26 27
+Inflow,ARIMAX-Individual,Solo,K1000,"Regression with ARIMA(4,0,0)(2,0,0)[12] errors",1 2 3 4 12 13 14 15 16 24 25 26 27 28
+Inflow,ARIMA-Individual,Surabaya,K100000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Surabaya,K100000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Surabaya,K50000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
+Inflow,ARIMAX-Individual,Surabaya,K50000,"Regression with ARIMA(1,0,1)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Surabaya,K20000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Surabaya,K20000,"Regression with ARIMA(1,0,1)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Surabaya,K10000,"ARIMA(0,1,1)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Surabaya,K10000,"Regression with ARIMA(3,0,1)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Surabaya,K5000,"ARIMA(1,0,2)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Surabaya,K5000,"Regression with ARIMA(1,0,2)(0,0,2)[12] errors",1
+Inflow,ARIMA-Individual,Surabaya,K2000,"ARIMA(0,1,0)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Surabaya,K2000,"Regression with ARIMA(1,0,1) errors",1
+Inflow,ARIMA-Individual,Surabaya,K1000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Surabaya,K1000,"Regression with ARIMA(2,0,2) errors",1 2
+Inflow,ARIMA-Individual,Tasikmalaya,K100000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Tasikmalaya,K100000,"Regression with ARIMA(5,0,0)(0,0,1)[12] errors",1 2 3 4 5
+Inflow,ARIMA-Individual,Tasikmalaya,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Tasikmalaya,K50000,"Regression with ARIMA(1,0,2)(0,0,1)[12] errors",1
+Inflow,ARIMA-Individual,Tasikmalaya,K20000,"ARIMA(1,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Tasikmalaya,K20000,"Regression with ARIMA(1,0,3)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Tasikmalaya,K10000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Tasikmalaya,K10000,"Regression with ARIMA(3,0,0)(1,0,1)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Tasikmalaya,K5000,"ARIMA(1,0,3)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Tasikmalaya,K5000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Tasikmalaya,K2000,"ARIMA(1,0,0)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Tasikmalaya,K2000,"Regression with ARIMA(1,0,0) errors",1
+Inflow,ARIMA-Individual,Tasikmalaya,K1000,"ARIMA(2,1,0)(0,1,0)[12]",1 3 12 13 15
+Inflow,ARIMAX-Individual,Tasikmalaya,K1000,"Regression with ARIMA(1,0,2)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Yogyakarta,K100000,"ARIMA(0,1,2)(0,1,2)[12]",1 12 13
+Inflow,ARIMAX-Individual,Yogyakarta,K100000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Yogyakarta,K50000,"ARIMA(0,1,2)(0,1,1)[12]",1 12 13
+Inflow,ARIMAX-Individual,Yogyakarta,K50000,"Regression with ARIMA(4,0,0)(1,0,0)[12] errors",1 2 3 4 12 13 14 15 16
+Inflow,ARIMA-Individual,Yogyakarta,K20000,"ARIMA(3,1,1)(0,1,2)[12]",1 4 12 13 16
+Inflow,ARIMAX-Individual,Yogyakarta,K20000,"Regression with ARIMA(2,0,1)(1,0,0)[12] errors",1 2 12
+Inflow,ARIMA-Individual,Yogyakarta,K10000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Yogyakarta,K10000,"Regression with ARIMA(2,0,0)(2,0,0)[12] errors",1 2 12 13 14 24 25 26
+Inflow,ARIMA-Individual,Yogyakarta,K5000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Yogyakarta,K5000,"Regression with ARIMA(1,0,1)(0,0,2)[12] errors",1
+Inflow,ARIMA-Individual,Yogyakarta,K2000,"ARIMA(1,0,1)(2,0,0)[12] with non-zero mean",1 12 13 24 25
+Inflow,ARIMAX-Individual,Yogyakarta,K2000,"Regression with ARIMA(0,0,0) errors",1 2 3 4 5 6 7 8 9 10 11 12
+Inflow,ARIMA-Individual,Yogyakarta,K1000,"ARIMA(1,0,1)(1,0,2)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Yogyakarta,K1000,"Regression with ARIMA(2,0,1)(1,0,1)[12] errors",1 2 12
+Inflow,ARIMA-Individual,Jakarta,K100000,"ARIMA(0,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Jakarta,K100000,"Regression with ARIMA(3,0,0)(1,0,0)[12] errors",1 2 3 12 13 14 15
+Inflow,ARIMA-Individual,Jakarta,K50000,"ARIMA(0,1,2)(0,1,0)[12]",1 12 13
+Inflow,ARIMAX-Individual,Jakarta,K50000,"Regression with ARIMA(1,0,1)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Jakarta,K20000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Jakarta,K20000,"Regression with ARIMA(1,0,1)(1,0,0)[12] errors",1 12
+Inflow,ARIMA-Individual,Jakarta,K10000,"ARIMA(3,1,3)(2,1,0)[12]",1 4 12 13 16 36 37 40
+Inflow,ARIMAX-Individual,Jakarta,K10000,"Regression with ARIMA(1,0,4)(2,0,0)[12] errors",1 12 13 24 25
+Inflow,ARIMA-Individual,Jakarta,K5000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
+Inflow,ARIMAX-Individual,Jakarta,K5000,"Regression with ARIMA(3,0,1) errors",1 2 3
+Inflow,ARIMA-Individual,Jakarta,K2000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
+Inflow,ARIMAX-Individual,Jakarta,K2000,"Regression with ARIMA(1,0,0) errors",1
+Inflow,ARIMA-Individual,Jakarta,K1000,"ARIMA(2,1,2)(1,1,0)[12]",1 3 12 13 15 24 25 27
+Inflow,ARIMAX-Individual,Jakarta,K1000,"Regression with ARIMA(4,0,2)(1,0,1)[12] errors",1 2 3 4 12 13 14 15 16
