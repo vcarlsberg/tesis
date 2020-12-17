@@ -61,9 +61,10 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
     testFun <- function(x)
     {
       mlp.model<-mlp(residual,hd=c(x[1]),
-                     lags = lag,
+                     lags = lag,reps = 1,
                      sel.lag = FALSE,
       )
+      #print(paste(x[1]))
       rmse_oos<-TSrepr::rmse(x=train_test_data$test,
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
@@ -78,14 +79,15 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
     testFun <- function(x)
     {
       mlp.model<-mlp(residual,hd=c(x[1],x[2]),
-                     lags = lag,
+                     lags = lag,reps = 1,
                      sel.lag = FALSE,
       )
+      #print(paste(x[1],x[2]))
       rmse_oos<-TSrepr::rmse(x=train_test_data$test,
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20),method = "snow",cl = 6,printDetail = TRUE)
 	  
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
@@ -96,7 +98,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   }
   
   mlp.model<-mlp(residual,hd=c(sol$minlevels),
-                 lags = lag,
+                 lags = lag,reps = 1,
                  sel.lag = FALSE)
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted) %>% InvBoxCox(lambda=lambda)

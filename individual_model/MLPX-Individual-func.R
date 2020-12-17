@@ -100,6 +100,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
                  lags =lag,
+                 sel.lag = FALSE,
                  xreg =as.data.frame(xreg_data$train),
                  xreg.lags=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
                  xreg.keep=c(T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T))

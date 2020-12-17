@@ -55,7 +55,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1]),
                      reps = 1,
-                     lags = lag)
+                     lags = lag,sel.lag = FALSE)
       rmse_oos<-TSrepr::rmse(x=train_test_data$test,
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean
                              )
@@ -71,7 +71,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
     {
       mlp.model<-mlp(train_test_data$train,hd=c(x[1],x[2]),
                      reps = 1,
-                     lags = lag)
+                     lags = lag,sel.lag = FALSE)
       rmse_oos<-TSrepr::rmse(x=train_test_data$test,
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean
                              )
@@ -88,7 +88,7 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
   
   mlp.model<-mlp(train_test_data$train,hd=c(sol$minlevels),
                  reps = 1,
-                 lags = lag)
+                 lags = lag,sel.lag = FALSE)
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted)
   colnames(result)<-c("train_data","mlp_fitted")
