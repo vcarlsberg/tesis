@@ -112,7 +112,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   compile<-rbind(compile,data.frame(Flow=flow,
-                                    Model="MLPX-Individual",
+                                    Model=if (MLP_layer==1) "FFNNX-Individual" else "DLNNX-Individual",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -140,7 +140,7 @@ MLPX_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag
     colnames(result.pred)<-c("train_data","mlp_fitted")
     
     compile<-rbind(compile,data.frame(Flow=flow,
-                                      Model="MLPX-Individual",
+                                      Model=if (MLP_layer==1) "FFNNX-Individual" else "DLNNX-Individual",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

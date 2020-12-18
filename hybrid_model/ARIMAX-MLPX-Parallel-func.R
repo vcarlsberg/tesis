@@ -132,7 +132,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       weight2<-0.5
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMAX-MLPX-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (SA)" else "ARIMAX-DLNNX-Paralel (SA)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -160,7 +160,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMAX-MLPX-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (SA)" else "ARIMAX-DLNNX-Paralel (SA)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -188,7 +188,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       weight2<-as.numeric(lm.model$coefficients[2])
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMAX-MLPX-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (OLS)" else "ARIMAX-DLNNX-Paralel (OLS)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -216,7 +216,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMAX-MLPX-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (OLS)" else "ARIMAX-DLNNX-Paralel (OLS)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -254,7 +254,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
       weight2<-GA@solution[2]
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMAX-MLPX-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (GA)" else "ARIMAX-DLNNX-Paralel (GA)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -282,7 +282,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMAX-MLPX-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMAX-FFNNX-Paralel (GA)" else "ARIMAX-DLNNX-Paralel (GA)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
