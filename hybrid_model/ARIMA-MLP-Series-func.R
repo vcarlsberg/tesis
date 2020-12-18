@@ -87,7 +87,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean)
     }
     
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20),method = "snow",cl = 6,printDetail = TRUE)
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
 	  
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
@@ -113,7 +113,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   
   
   compile<-rbind(compile,data.frame(Flow=flow,
-                                    Model="ARIMA-MLP-Series",
+                                    Model=if (MLP_layer==1) "ARIMA-FFNN-Seri" else "ARIMA-DLNN-Seri",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -142,7 +142,7 @@ ARIMA_MLP_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
     colnames(result.pred)<-c("test_data","forecast")
     
     compile<-rbind(compile,data.frame(Flow=flow,
-                                      Model="ARIMA-MLP-Series",
+                                      Model=if (MLP_layer==1) "ARIMA-FFNN-Seri" else "ARIMA-DLNN-Seri",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

@@ -110,7 +110,7 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   compile<-rbind(compile,data.frame(Flow=flow,
-                                    Model="MLP-ARIMA-Series",
+                                    Model=if (MLP_layer==1) "FFNN-ARIMA-Seri" else "DLNN-ARIMA-Seri",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -140,7 +140,7 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
     
     
     compile<-rbind(compile,data.frame(Flow=flow,
-                                      Model="MLP-ARIMA-Series",
+                                      Model=if (MLP_layer==1) "FFNN-ARIMA-Seri" else "DLNN-ARIMA-Seri",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,
