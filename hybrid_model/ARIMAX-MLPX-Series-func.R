@@ -122,7 +122,7 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   preprocessing.candidate<-paste("Box-Cox lambda",lambda)
   
   compile<-rbind(compile,data.frame(Flow=flow,
-                                    Model="ARIMAX-MLPX-Series",
+                                    Model=if (MLP_layer==1) "ARIMAX-FFNNX-Seri" else "ARIMAX-DLNNX-Seri",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -152,7 +152,7 @@ ARIMAX_MLPX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
     colnames(result.pred)<-c("test_data","forecast")
     
     compile<-rbind(compile,data.frame(Flow=flow,
-                                      Model="ARIMAX-MLPX-Series",
+                                      Model=if (MLP_layer==1) "ARIMAX-FFNNX-Seri" else "ARIMAX-DLNNX-Seri",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

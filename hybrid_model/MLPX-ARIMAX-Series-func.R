@@ -128,7 +128,7 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   
   
   compile<-rbind(compile,data.frame(Flow=flow,
-                                    Model="MLPX-ARIMAX-Series",
+                                    Model=if (MLP_layer==1) "FFNNX-ARIMAX-Seri" else "DLNNX-ARIMAX-Seri",
                                     InOutSample="In Sample",
                                     Location=location,
                                     Denomination=denomination,
@@ -158,7 +158,7 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
     
     
     compile<-rbind(compile,data.frame(Flow=flow,
-                                      Model="MLPX-ARIMAX-Series",
+                                      Model=if (MLP_layer==1) "FFNNX-ARIMAX-Seri" else "DLNNX-ARIMAX-Seri",
                                       InOutSample="Out Sample",
                                       Location=location,
                                       Denomination=denomination,

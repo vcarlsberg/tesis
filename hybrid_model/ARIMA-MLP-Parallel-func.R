@@ -119,7 +119,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
       weight2<-0.5
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMA-MLP-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (SA)" else "ARIMA-DLNN-Paralel (SA)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -147,7 +147,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMA-MLP-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (SA)" else "ARIMA-DLNN-Paralel (SA)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -175,7 +175,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
       weight2<-as.numeric(lm.model$coefficients[2])
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMA-MLP-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (OLS)" else "ARIMA-DLNN-Paralel (OLS)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -203,7 +203,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMA-MLP-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (OLS)" else "ARIMA-DLNN-Paralel (OLS)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,
@@ -241,7 +241,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
       weight2<-GA@solution[2]
       
       compile<-rbind(compile,data.frame(Flow=flow,
-                                        Model="ARIMA-MLP-Parallel",
+                                        Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (GA)" else "ARIMA-DLNN-Paralel (GA)",
                                         InOutSample="In Sample",
                                         Location=location,
                                         Denomination=denomination,
@@ -269,7 +269,7 @@ ARIMA_MLP_Parallel<-function(preprocessing,MLP_layer,location,denomination,flow,
         colnames(result_pred_weight)<-c("train_data","mlp_fitted","arima_fitted")
         
         compile<-rbind(compile,data.frame(Flow=flow,
-                                          Model="ARIMA-MLP-Parallel",
+                                          Model=if (MLP_layer==1) "ARIMA-FFNN-Paralel (GA)" else "ARIMA-DLNN-Paralel (GA)",
                                           InOutSample="Out Sample",
                                           Location=location,
                                           Denomination=denomination,

@@ -50,11 +50,11 @@ for (flow in c("Inflow"))
 {
   for (location in c("Jakarta"))
   {
-    for (denomination in c("K50000"))
+    for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
     {
       for (preprocessing in c(1))
       {
-        for (MLP_layer in c(1))
+        for (MLP_layer in c(1,2))
         {
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_Individual"))
