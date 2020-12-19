@@ -46,9 +46,9 @@ for (flow in c("Outflow","Inflow"))
 }
 
 
-for (flow in c("Inflow"))
+for (flow in c("Inflow","Outflow"))
 {
-  for (location in c("Jakarta"))
+  for (location in c("Bandung"))
   {
     for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
     {
@@ -69,13 +69,22 @@ for (flow in c("Inflow"))
                                    lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
+            
           },error=function(e){
             print(e)
           })
 
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLXP_Individual"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLPX_Individual(preprocessing = preprocessing,
@@ -86,13 +95,20 @@ for (flow in c("Inflow"))
                                     lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Parallel"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
@@ -103,13 +119,20 @@ for (flow in c("Inflow"))
                                        lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Parallel"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
@@ -120,13 +143,20 @@ for (flow in c("Inflow"))
                                          lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Seri"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMA_MLP_Series(preprocessing = preprocessing,
@@ -137,30 +167,44 @@ for (flow in c("Inflow"))
                                      lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Series"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMAX_MLPX_Series(preprocessing = preprocessing,
-                              location=location,
-                              denomination=denomination,
-                              MLP_layer=MLP_layer,
-                              flow=flow,
-                              lag=lagrow)
+                                       location=location,
+                                       denomination=denomination,
+                                       MLP_layer=MLP_layer,
+                                       flow=flow,
+                                       lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Seri"))
-
+            
             #findlag
             lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLP_ARIMA_Series(preprocessing = preprocessing,
@@ -171,6 +215,13 @@ for (flow in c("Inflow"))
                                      lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
@@ -188,6 +239,13 @@ for (flow in c("Inflow"))
                                        lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$modelResult,
+                         sheet="oos")
+            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+                         result$gridsearchNN,
+                         sheet="nn")
+            
           },error=function(e){
             print(e)
           })
