@@ -1,6 +1,6 @@
 MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
 {
-  source("~/tesis/all_function.R")
+  source("all_function.R")
   init_run()
   set.seed(72)
   
@@ -60,7 +60,10 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
                              y=forecast(mlp.model,h=length(train_test_data$test))$mean
                              )
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:20),
+                      method = "multicore",
+                      mc.control = list(mc.preschedule = FALSE)
+                      )
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),0,as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
@@ -77,7 +80,10 @@ MLP_Individual<-function(preprocessing,MLP_layer,location,denomination,flow,lag)
                              )
       rmse_oos
     }
-    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20))
+    sol <- gridSearch(fun = testFun, levels = list(1:20,1:20),
+                      method = "multicore",
+                      mc.control = list(mc.preschedule = FALSE)
+                      )
     
     gs.result<-cbind(t(as.data.frame(sol[["levels"]])),as.data.frame(sol$values),id,dateexecuted,length(lag))
     row.names(gs.result)<-NULL
