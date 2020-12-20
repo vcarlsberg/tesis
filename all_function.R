@@ -76,7 +76,6 @@ add_eidulfitr_regressor<-function(data,flow){
 }
 
 read_data<-function(kota,pecahan,flow){
-  library(gsheet)
   library(tidyverse)
   file<-read_delim("Data_Refit.csv", 
                    ";", escape_double = FALSE, trim_ws = TRUE) %>% 
