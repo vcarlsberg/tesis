@@ -1,4 +1,5 @@
 source("all_function.R")
+library(googlesheets4)
 init_run()
 
 compiled_result<-data.frame()
@@ -7,12 +8,12 @@ nn_gridsearch_result<-data.frame()
 lag_info <- read_csv("lag_info.csv") %>% as.data.frame()
 lag_info$Lags<-strsplit(lag_info$Lags," ")
 
+sheet_id<-"1Lh34zALwYcbPTRN2KgDa3FOspgiSGUSJyBAcbofjgjA"
 
 
-
-for (flow in c("Outflow","Inflow"))
+for (flow in c("Inflow"))
 {
-  for (location in c("Bandung","Cirebon","Jember","Kediri","Malang","Purwokerto","Semarang","Solo","Surabaya","Tasikmalaya","Yogyakarta","Jakarta"))
+  for (location in c("Cirebon"))
   {
     for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
     {
@@ -70,10 +71,10 @@ for (flow in c("Inflow","Outflow"))
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
             
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -95,10 +96,10 @@ for (flow in c("Inflow","Outflow"))
                                     lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -119,10 +120,10 @@ for (flow in c("Inflow","Outflow"))
                                        lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -143,10 +144,10 @@ for (flow in c("Inflow","Outflow"))
                                          lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -167,10 +168,10 @@ for (flow in c("Inflow","Outflow"))
                                      lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -191,10 +192,10 @@ for (flow in c("Inflow","Outflow"))
                                        lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -215,10 +216,10 @@ for (flow in c("Inflow","Outflow"))
                                      lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
@@ -239,10 +240,10 @@ for (flow in c("Inflow","Outflow"))
                                        lag=lagrow)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$modelResult,
                          sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
+            sheet_append(sheet_id,
                          result$gridsearchNN,
                          sheet="nn")
             
