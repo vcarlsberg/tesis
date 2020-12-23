@@ -188,7 +188,7 @@ Inflow,ARIMAX-Individual,Cirebon,K50000,"Regression with ARIMA(1,0,1)(2,0,0)[12]
 Inflow,ARIMA-Individual,Cirebon,K20000,"ARIMA(2,1,1)(0,1,1)[12]",1 2 12 13
 Inflow,ARIMAX-Individual,Cirebon,K20000,"Regression with ARIMA(2,0,2)(1,0,0)[12] errors",1 2 12 13 14
 Inflow,ARIMA-Individual,Cirebon,K10000,"ARIMA(1,1,2)(2,1,0)[12]",1 12 13 24 25
-Inflow,ARIMAX-Individual,Cirebon,K10000,"Regression with ARIMA(5,0,1)(2,0,2)[12] errors",1 2 3 4 5 12 13 14 15 16 17 24 25 25 26 27 28 29
+Inflow,ARIMAX-Individual,Cirebon,K10000,"Regression with ARIMA(5,0,1)(2,0,2)[12] errors",1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29
 Inflow,ARIMA-Individual,Cirebon,K5000,"ARIMA(1,0,1)(0,0,2)[12] with non-zero mean",1
 Inflow,ARIMAX-Individual,Cirebon,K5000,"Regression with ARIMA(4,0,2)(2,0,2)[12] errors",1 2 3 4 12 13 14 15 16 24 25 26 27 28
 Inflow,ARIMA-Individual,Cirebon,K2000,"ARIMA(1,0,1)(1,0,0)[12] with non-zero mean",1 12 13
