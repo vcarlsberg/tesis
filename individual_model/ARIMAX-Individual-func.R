@@ -37,7 +37,7 @@ ARIMAX_Individual<-function(preprocessing,location,denomination,flow)
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
   
-  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc")
+  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc",seasonal = TRUE)
   
   result<-ts.intersect(train_test_data$train,arima.model$fitted)
   colnames(result)<-c("train_data","arima_fitted")

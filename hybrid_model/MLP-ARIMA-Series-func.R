@@ -94,9 +94,9 @@ MLP_ARIMA_Series<-function(preprocessing,MLP_layer,location,denomination,flow,la
   residual<-train_test_data$train-mlp.model$fitted
   
   if(adf.test(residual)$p.value>0.05){
-    arima.model<-auto.arima(train_test_data$train,d = 1,D=1,ic = "aicc")
+    arima.model<-auto.arima(train_test_data$train,d = 1,D=1,ic = "aicc",seasonal = TRUE)
   }else{
-    arima.model<-auto.arima(train_test_data$train,d = 0,D=0,ic = "aicc")
+    arima.model<-auto.arima(train_test_data$train,d = 0,D=0,ic = "aicc",seasonal = TRUE)
   }
   
   result<-ts.intersect(train_test_data$train,mlp.model$fitted,arima.model$fitted) %>% InvBoxCox(lambda=lambda)
