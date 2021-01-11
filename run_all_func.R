@@ -1,3 +1,13 @@
+library(RMySQL)
+mydb = dbConnect(RMySQL::MySQL(), 
+                 user='admin', 
+                 password='sZpckBNuXW4H', 
+                 dbname='tesis', 
+                 host='51.79.167.101',
+                 port=3300)
+
+dbListTables(mydb)
+
 source("all_function.R")
 init_run()
 
@@ -8,11 +18,9 @@ lag_info <- read_csv("lag_info.csv") %>% as.data.frame()
 lag_info$Lags<-strsplit(lag_info$Lags," ")
 
 
-
-
-for (flow in c("Outflow","Inflow"))
+for (flow in c("Inflow","Outflow"))
 {
-  for (location in c("Bandung","Cirebon","Jember","Kediri","Malang","Purwokerto","Semarang","Solo","Surabaya","Tasikmalaya","Yogyakarta","Jakarta"))
+  for (location in c("Semarang"))
   {
     for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
     {
@@ -25,6 +33,11 @@ for (flow in c("Outflow","Inflow"))
                                    location=location,
                                    denomination=denomination,flow = flow)
           compiled_result<-rbind(compiled_result,result)
+          
+          result$DateExecuted<-result$DateExecuted %>% as.character()
+          append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result,row.names = FALSE )
+          dbExecute( conn = mydb , statement = append_cmd )
+          
         },error=function(e){
           print(e)
         })
@@ -36,6 +49,11 @@ for (flow in c("Outflow","Inflow"))
                                    location=location,
                                    denomination=denomination,flow = flow)
           compiled_result<-rbind(compiled_result,result)
+          
+          result$DateExecuted<-result$DateExecuted %>% as.character()
+          append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result,row.names = FALSE )
+          dbExecute( conn = mydb , statement = append_cmd )
+          
         },error=function(e){
           print(e)
         })
@@ -48,7 +66,7 @@ for (flow in c("Outflow","Inflow"))
 
 for (flow in c("Inflow","Outflow"))
 {
-  for (location in c("Bandung"))
+  for (location in c("Semarang"))
   {
     for (denomination in c("K100000","K50000","K20000","K10000","K5000","K2000","K1000"))
     {
@@ -58,49 +76,53 @@ for (flow in c("Inflow","Outflow"))
         {
           tryCatch({
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_Individual"))
-
+            
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLP_Individual(preprocessing = preprocessing,
                                    location=location,
                                    denomination=denomination,
                                    MLP_layer=MLP_layer,
                                    flow=flow,
-                                   lag=lagrow)
+                                   lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
             
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
             
             
           },error=function(e){
             print(e)
           })
-
+          
           tryCatch({
-            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLXP_Individual"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_Individual"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLPX_Individual(preprocessing = preprocessing,
-                                    location=location,
-                                    denomination=denomination,
-                                    MLP_layer=MLP_layer,
-                                    flow=flow,
-                                    lag=lagrow)
+                                   location=location,
+                                   denomination=denomination,
+                                   MLP_layer=MLP_layer,
+                                   flow=flow,
+                                   lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
@@ -110,21 +132,24 @@ for (flow in c("Inflow","Outflow"))
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Parallel"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMA_MLP_Parallel(preprocessing = preprocessing,
-                                       location=location,
-                                       denomination=denomination,
-                                       MLP_layer=MLP_layer,
-                                       flow=flow,
-                                       lag=lagrow)
+                                   location=location,
+                                   denomination=denomination,
+                                   MLP_layer=MLP_layer,
+                                   flow=flow,
+                                   lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
@@ -134,45 +159,51 @@ for (flow in c("Inflow","Outflow"))
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Parallel"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMAX_MLPX_Parallel(preprocessing = preprocessing,
-                                         location=location,
-                                         denomination=denomination,
-                                         MLP_layer=MLP_layer,
-                                         flow=flow,
-                                         lag=lagrow)
+                                       location=location,
+                                       denomination=denomination,
+                                       MLP_layer=MLP_layer,
+                                       flow=flow,
+                                       lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
           })
           
           tryCatch({
-            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Seri"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMA_MLP_Series"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMA_MLP_Series(preprocessing = preprocessing,
-                                     location=location,
-                                     denomination=denomination,
-                                     MLP_layer=MLP_layer,
-                                     flow=flow,
-                                     lag=lagrow)
+                                         location=location,
+                                         denomination=denomination,
+                                         MLP_layer=MLP_layer,
+                                         flow=flow,
+                                         lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
@@ -182,45 +213,51 @@ for (flow in c("Inflow","Outflow"))
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"ARIMAX_MLPX_Series"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-ARIMAX_MLPX_Series(preprocessing = preprocessing,
-                                       location=location,
-                                       denomination=denomination,
-                                       MLP_layer=MLP_layer,
-                                       flow=flow,
-                                       lag=lagrow)
+                                     location=location,
+                                     denomination=denomination,
+                                     MLP_layer=MLP_layer,
+                                     flow=flow,
+                                     lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
           })
           
           tryCatch({
-            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Seri"))
+            print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLP_ARIMA_Series"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMA-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLP_ARIMA_Series(preprocessing = preprocessing,
                                      location=location,
                                      denomination=denomination,
                                      MLP_layer=MLP_layer,
                                      flow=flow,
-                                     lag=lagrow)
+                                     lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
@@ -230,27 +267,30 @@ for (flow in c("Inflow","Outflow"))
             print(paste(flow,location,denomination,preprocessing,MLP_layer,Sys.time(),"MLPX_ARIMAX_Series"))
             
             #findlag
-            lagrow<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
+            lag<-(lag_info %>% filter(Flow==flow,Location==location,Denomination==denomination,Model=="ARIMAX-Individual") %>% select("Lags") %>% slice(1))$Lags[[1]]%>% as.numeric()
             result<-MLPX_ARIMAX_Series(preprocessing = preprocessing,
                                        location=location,
                                        denomination=denomination,
                                        MLP_layer=MLP_layer,
                                        flow=flow,
-                                       lag=lagrow)
+                                       lag=lag)
             compiled_result<-rbind(compiled_result,result$modelResult)
             nn_gridsearch_result<-rbind(nn_gridsearch_result,result$gridsearchNN)
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$modelResult,
-                         sheet="oos")
-            sheet_append("1D4KO3fcWxFf_r0jC7Z8TPg8Rc0ubVvA0T5G5wd3FRXE",
-                         result$gridsearchNN,
-                         sheet="nn")
+            
+            result$modelResult$DateExecuted<-result$modelResult$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "result",values = result$modelResult,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
+            result$gridsearchNN$DateExecuted<-result$gridsearchNN$DateExecuted %>% as.character()
+            append_cmd<-sqlAppendTable(con = mydb,table = "nn",values = result$gridsearchNN,row.names = FALSE )
+            dbExecute( conn = mydb , statement = append_cmd )
+            
             
           },error=function(e){
             print(e)
           })
           
-          
+
         }
       }
     }
