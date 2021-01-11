@@ -121,7 +121,7 @@ MLPX_ARIMAX_Series<-function(preprocessing,MLP_layer,location,denomination,flow,
   colnames(residual)<-c("residual",colnames(xreg_data$train))
   
   
-  arima.model<-auto.arima(residual[,1],xreg = residual[,c(-1)],d=0,D=0,ic = "aicc")
+  arima.model<-auto.arima(residual[,1],xreg = residual[,c(-1)],d=0,D=0,ic = "aicc",seasonal = TRUE)
   
   
   

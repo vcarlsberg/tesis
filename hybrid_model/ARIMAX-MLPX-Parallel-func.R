@@ -52,7 +52,7 @@ ARIMAX_MLPX_Parallel<-function(preprocessing,MLP_layer,location,denomination,flo
   train_test_data<-split_data(flow_data_transformed,20)
   xreg_data<-split_data(xreg_xts,20)
   
-  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc")
+  arima.model<-auto.arima(train_test_data$train,d = 0,D=0,xreg = xreg_data$train,ic = "aicc",seasonal = TRUE)
   
   if(MLP_layer==1)
   {
