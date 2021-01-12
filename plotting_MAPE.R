@@ -6,7 +6,6 @@ mydb = dbConnect(RMySQL::MySQL(),
                  port=3300,
                  password=as.character(read.csv(file.choose(),header = FALSE)[1,1]))
 
-dbListTables(mydb)
 
 
 ################################## plot grafik ################################
