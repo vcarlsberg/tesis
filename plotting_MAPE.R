@@ -7,7 +7,6 @@ mydb = dbConnect(RMySQL::MySQL(),
                  password=as.character(read.csv(file.choose(),header = FALSE)[1,1]))
 
 
-
 ################################## plot grafik ################################
 library(lubridate)
 library(scales)
